@@ -8,67 +8,71 @@ class PablosNet():
     def build_model(self, images):
         """Model function for CNN."""
 
+        # Training Parameters
+        learning_rate = 0.0001
+        epochs = 10
+        display_step = 10
+        n_images, rows, columns, slices = images.shape
         batch_size = 5
-        image_width =
-        image_height = 
+        num_classes = 2
 
-        # Input Layer
-        input_layer = tf.reshape(features["x"], [-1, 28, 28, 1])
+        # tf Graph input
+        X = tf.placeholder(tf.float32, [None, n_images])
+        Y = tf.placeholder(tf.float32, [None, num_classes])
+        keep_prob = tf.placeholder(tf.float32)  # dropout (keep probability)
 
-        # Convolutional Layer #1
-        conv1 = tf.layers.conv2d(
-          inputs=input_layer,
-          filters=12,
-          kernel_size=[5, 5],
-          padding="same",
-          activation=tf.nn.relu)
-
-        # Pooling Layer #1
-        pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
-
-        # Convolutional Layer #2 and Pooling Layer #2
-        conv2 = tf.layers.conv2d(
-          inputs=pool1,
-          filters=64,
-          kernel_size=[5, 5],
-          padding="same",
-          activation=tf.nn.relu)
-        pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
-
-        # Dense Layer
-        pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])
-        dense = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
-        dropout = tf.layers.dropout(
-          inputs=dense, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN)
-
-        # Logits Layer
-        logits = tf.layers.dense(inputs=dropout, units=10)
-
-        predictions = {
-          # Generate predictions (for PREDICT and EVAL mode)
-          "classes": tf.argmax(input=logits, axis=1),
-          # Add `softmax_tensor` to the graph. It is used for PREDICT and by the
-          # `logging_hook`.
-          "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
+        # Store layers weight & bias
+        weights = {
+            # 5x5 conv, 1 input, 32 outputs
+            'wc1': tf.Variable(tf.random_normal([5, 5, 5, 1, 32])),
+            # 5x5 conv, 32 inputs, 64 outputs
+            'wc2': tf.Variable(tf.random_normal([5, 5, 5, 32, 64])),
+            # fully connected, 7*7*64 inputs, 1024 outputs
+            'wd1': tf.Variable(tf.random_normal([7 * 7 * 64, 1024])),
+            # 1024 inputs, 10 outputs (class prediction)
+            'out': tf.Variable(tf.random_normal([1024, num_classes]))
         }
 
-        if mode == tf.estimator.ModeKeys.PREDICT:
-            return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
+        biases = {
+            'bc1': tf.Variable(tf.random_normal([32])),
+            'bc2': tf.Variable(tf.random_normal([64])),
+            'bd1': tf.Variable(tf.random_normal([1024])),
+            'out': tf.Variable(tf.random_normal([num_classes]))
+        }
 
-        # Calculate Loss (for both TRAIN and EVAL modes)
-        loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+        # Input Layer
+        input_layer = tf.reshape(images, [batch_size, rows, columns, slices])
 
-        # Configure the Training Op (for TRAIN mode)
-        if mode == tf.estimator.ModeKeys.TRAIN:
-            optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
-            train_op = optimizer.minimize(
-                loss=loss,
-                global_step=tf.train.get_global_step())
-            return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
+        # Convolution Layer
+        conv1 = self.conv3d(x, weights['wc1'], biases['bc1'])
+        # Max Pooling (down-sampling)
+        conv1 = self.maxpool3d(conv1, k=2)
 
-        # Add evaluation metrics (for EVAL mode)
-        eval_metric_ops = {
-          "accuracy": tf.metrics.accuracy(
-              labels=labels, predictions=predictions["classes"])}
-        return tf.estimator.EstimatorSpec(
-          mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
+        # Convolution Layer
+        conv2 = self.conv3d(conv1, weights['wc2'], biases['bc2'])
+        # Max Pooling (down-sampling)
+        conv2 = self.maxpool3d(conv2, k=2)
+
+        # Fully connected layer
+        # Reshape conv2 output to fit fully connected layer input
+        fc1 = tf.reshape(conv2, [-1, weights['wd1'].get_shape().as_list()[0]])
+        fc1 = tf.add(tf.matmul(fc1, weights['wd1']), biases['bd1'])
+        fc1 = tf.nn.relu(fc1)
+        # Apply Dropout
+        fc1 = tf.nn.dropout(fc1, dropout)
+
+        # Output, class prediction
+        out = tf.add(tf.matmul(fc1, weights['out']), biases['out'])
+        return out
+
+
+    # Create some wrappers for simplicity
+    def conv3d(self, x, weights, biases, strides=1):
+        # Conv2D wrapper, with bias and relu activation
+        x = tf.nn.conv3d(x, weights, strides=[1, strides, strides, strides, 1], padding='SAME')
+        x = tf.nn.bias_add(x, biases)
+        return tf.nn.relu(x)
+
+    def maxpool3d(self, x, k=2, strides=2):
+        return tf.nn.max_pool3d(x, ksize=[1, k, k, k, 1], strides=[1, strides, strides, strides, 1], padding='SAME')
+
