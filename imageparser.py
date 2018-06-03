@@ -37,8 +37,9 @@ class ImageParser():
 
         utrech_dataset = self.get_images_and_labels(self.path_utrech)
         singapore_dataset = self.get_images_and_labels(self.path_singapore)
-        path_amsterdam = self.get_images_and_labels(self.path_amsterdam)
+        amsterdam_dataset = self.get_images_and_labels(self.path_amsterdam)
 
+        return utrech_dataset, singapore_dataset, amsterdam_dataset
 
     def get_images_and_labels(self, path):
 
@@ -61,13 +62,26 @@ class ImageParser():
 
         return full_dataset
 
-    def get_all_images(self, paths_list):
+    def get_all_images_itk(self, paths_list):
 
         images = []
         for path in paths_list:
 
             image = itk.imread(path)
             images.append(image)
+
+        return images
+
+    def get_all_images_np(self, paths_list):
+
+        images = []
+        for path in paths_list:
+
+            image = itk.imread(path)
+            np_image = itk.GetArrayFromImage(image)
+            np_image = np.swapaxes(np_image, 0, 2)
+            np_image = np.expand_dims(np_image, 4)
+            images.append(np_image)
 
         return images
 
