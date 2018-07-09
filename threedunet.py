@@ -1,10 +1,26 @@
 from keras import models
 from keras import layers
+from contextlib import redirect_stdout
+import os
+from keras.callbacks import ModelCheckpoint, TensorBoard
+from sklearn.model_selection import train_test_split
+from keras.models import load_model
+from keras.optimizers import Adam
+from metrics import dice_coef, dice_coef_loss
 
 class ThreeDUnet():
 
-    def __init__(self):
-        self.model = None
+    def __init__(self, model_path=None, img_shape=None):
+
+        if model_path is None:
+            if img_shape is None:
+                raise Exception('If no model path is provided img shape is a mandatory argument.')
+            model = self.create_model(img_shape)
+        else:
+            model = load_model(model_path)
+
+        self.model = model
+
 
     def create_model(self, img_shape):
 
@@ -67,11 +83,15 @@ class ThreeDUnet():
         conv21 = layers.Conv3D(64, kernel_size=3, padding='same', activation='relu')(conv20)
         conv22 = layers.Conv3D(64, kernel_size=3, padding='same', activation='relu')(conv21)
 
-        conv23 = layers.Conv3D(2, kernel_size=1, padding='same', activation='relu')(conv22)
+        conv23 = layers.Conv3D(1, kernel_size=1, padding='same', activation='sigmoid')(conv22)
 
         model = models.Model(inputs=inputs, outputs=conv23)
 
-        self.model = model
+        model.compile(optimizer=Adam(lr=0.0001), loss=dice_coef_loss, metrics=[dice_coef])
+
+        model.summary()
+
+        return model
 
 
     def copy_crop(self, layer_target, layer_refer):
