@@ -40,7 +40,7 @@ test_size=0.3
 
 print(data.shape, labels.shape)
 
-unet.train(data[15:, :, :], labels[15:, :, :], test_size, training_name, base_path, epochs=10, batch_size=1)
+unet.train(data, labels, test_size, training_name, base_path, epochs=10, batch_size=1)
 
 '''
 utils = Utils()
