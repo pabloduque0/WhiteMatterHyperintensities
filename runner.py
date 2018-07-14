@@ -18,11 +18,11 @@ labels_utrecht = [row[0] for row in utrech_dataset]
 data_singapore = [row[1] for row in singapore_dataset]
 labels_singapore = [row[0] for row in singapore_dataset]
 
-data_amsterdam = [row[1] for row in amsterdam_dataset]
-labels_amsterdam = [row[0] for row in amsterdam_dataset]
+#data_amsterdam = [row[1] for row in amsterdam_dataset]
+#labels_amsterdam = [row[0] for row in amsterdam_dataset]
 
-all_data = np.concatenate([data_utrecht, data_singapore, data_amsterdam])
-all_labels = np.concatenate([labels_utrecht, labels_singapore, labels_amsterdam])
+all_data = data_utrecht + data_singapore # + list(data_amsterdam)
+all_labels = labels_utrecht + labels_singapore # + labels_amsterdam
 
 '''
 for paths in utrech_dataset:
@@ -35,17 +35,27 @@ for paths in utrech_dataset:
     data.append(images[1]) # Only one MRI image for now
 '''
 
+slice_shape = (240, 240)
 
-data = parser.get_all_images_np(all_data)
-labels = parser.get_all_images_np(all_labels)
-data = np.asanyarray(data)
+data = parser.get_all_images_np(all_data, slice_shape)
+labels = parser.get_all_images_np(all_labels, slice_shape)
+print(len(data))
+for img in data:
+    print(img.shape)
+
+print(type(data), type(data[0]))
+
+data = np.stack(data, axis=0)
+print(type(data))
 labels = np.asanyarray(labels)
+
+print(data.shape, labels.shape)
 
 unet = ThreeDUnet(model_path=None, img_shape=data.shape[1:])
 
 training_name = 'first_test'
 base_path = '/home/pablo/Google Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/'
-test_size=0.3
+test_size = 0.3
 
 print(data.shape, labels.shape)
 

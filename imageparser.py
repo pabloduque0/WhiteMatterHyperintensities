@@ -72,17 +72,29 @@ class ImageParser():
         return images
 
 
-    def get_all_images_np(self, paths_list):
+    def get_all_images_np(self, paths_list, slice_shape):
         images = []
         for path in paths_list:
             image = itk.imread(path)
             np_image = itk.GetArrayFromImage(image)
             np_image = np.swapaxes(np_image, 0, 2)
+            resized = self.threed_resize(np_image, slice_shape)
+            np_image = np.swapaxes(resized, 0, 2)
             np_image = np.expand_dims(np_image, 4)
+
             images.append(np_image)
 
         return images
 
+    def threed_resize(self, image, slice_shape):
+
+        all_slices = []
+        for index in range(image.shape[2]):
+            slice = image[:, :, index]
+            resized = cv2.resize(slice, (slice_shape[1], slice_shape[0]))
+            all_slices.append(resized)
+
+        return np.asanyarray(all_slices)
 
     def display_image(self, image):
         np_image = itk.GetArrayFromImage(image)
