@@ -12,7 +12,7 @@ parser.get_all_images(image_paths)
 
 utrech_dataset, singapore_dataset, amsterdam_dataset = parser.get_all_images_and_labels()
 
-data = [row[1] for row in utrech_dataset]
+data = [row[2] for row in utrech_dataset]
 labels = [row[0] for row in utrech_dataset]
 
 '''
