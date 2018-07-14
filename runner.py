@@ -12,8 +12,17 @@ parser.get_all_images(image_paths)
 
 utrech_dataset, singapore_dataset, amsterdam_dataset = parser.get_all_images_and_labels()
 
-data = [row[2] for row in utrech_dataset]
-labels = [row[0] for row in utrech_dataset]
+data_utrecht = [row[1] for row in utrech_dataset]
+labels_utrecht = [row[0] for row in utrech_dataset]
+
+data_singapore = [row[1] for row in singapore_dataset]
+labels_singapore = [row[0] for row in singapore_dataset]
+
+data_amsterdam = [row[1] for row in amsterdam_dataset]
+labels_amsterdam = [row[0] for row in amsterdam_dataset]
+
+all_data = np.concatenate([data_utrecht, data_singapore, data_amsterdam])
+all_labels = np.concatenate([labels_utrecht, labels_singapore, labels_amsterdam])
 
 '''
 for paths in utrech_dataset:
@@ -27,8 +36,8 @@ for paths in utrech_dataset:
 '''
 
 
-data = parser.get_all_images_np(data)
-labels = parser.get_all_images_np(labels)
+data = parser.get_all_images_np(all_data)
+labels = parser.get_all_images_np(all_labels)
 data = np.asanyarray(data)
 labels = np.asanyarray(labels)
 
