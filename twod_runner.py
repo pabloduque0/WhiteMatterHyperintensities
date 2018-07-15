@@ -1,14 +1,9 @@
-from threedunet import ThreeDUnet
+from twodunet import TwoDUnet
 from imageparser import ImageParser
 import numpy as np
 
 
 parser = ImageParser()
-'''
-image_paths = parser.get_all_image_paths()
-
-parser.get_all_images(image_paths)
-'''
 
 utrech_dataset, singapore_dataset, amsterdam_dataset = parser.get_all_images_and_labels()
 
@@ -27,15 +22,15 @@ all_labels = labels_utrecht + labels_singapore # + labels_amsterdam
 
 slice_shape = (240, 240)
 
-data = parser.get_all_images_np(all_data, slice_shape)
-labels = parser.get_all_images_np(all_labels, slice_shape, normalization=False)
+data = parser.get_all_images_np_twod(all_data, slice_shape)
+labels = parser.get_all_images_np_twod(all_labels, slice_shape, normalization=False)
 
 data = np.stack(data, axis=0)
 labels = np.asanyarray(labels)
 
 print(data.shape, labels.shape)
 
-unet = ThreeDUnet(model_path=None, img_shape=data.shape[1:])
+unet = TwoDUnet(model_path=None, img_shape=data.shape[1:])
 
 training_name = 'first_test'
 base_path = '/home/pablo/Google Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/'

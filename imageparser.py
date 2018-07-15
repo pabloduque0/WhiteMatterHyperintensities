@@ -92,6 +92,39 @@ class ImageParser():
 
         return images
 
+    def get_all_images_np_twod(self, paths_list, slice_shape, normalization=True):
+
+        images = []
+        for path in paths_list:
+            image = itk.imread(path)
+            np_image = itk.GetArrayFromImage(image)
+            np_image = np.swapaxes(np_image, 0, 2)
+            resized = self.threed_resize(np_image, slice_shape)
+
+            if normalization:
+                normalized = self.normalize_image(resized)
+                if normalized is not None:
+                    np_image = np.expand_dims(normalized, 3)
+                    images.append(np_image)
+            else:
+                np_image = np.expand_dims(resized, 3)
+                images.append(np_image)
+
+        slices_list = self.get_slices_list(images)
+
+        return slices_list
+
+    def get_slices_list(self, images_list):
+
+        slices = []
+        for image in images_list:
+            for slice in image:
+                slices.append(slice)
+
+        return np.asanyarray(slices)
+
+
+
     def threed_resize(self, image, slice_shape):
 
         all_slices = []
