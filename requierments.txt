@@ -1,0 +1,6 @@
+numpy==1.14.2
+itk==4.13.0
+tensorflow==1.8.0
+keras==2.2.0
+cv2==3.4.0
+matplotlib==2.2.2
