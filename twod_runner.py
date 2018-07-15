@@ -1,7 +1,6 @@
-from twodunet import TwoDUnet
+from other_unet import TwoDUnet
 from imageparser import ImageParser
 import numpy as np
-
 
 parser = ImageParser()
 
@@ -25,8 +24,21 @@ slice_shape = (240, 240)
 data = parser.get_all_images_np_twod(all_data, slice_shape)
 labels = parser.get_all_images_np_twod(all_labels, slice_shape, normalization=False)
 
-data = np.stack(data, axis=0)
+data = np.asanyarray(data)
 labels = np.asanyarray(labels)
+
+print('Maxes: ', np.max(data), np.max(labels))
+print('Mins: ', np.min(data), np.min(labels))
+
+for img, lab in zip(data, labels):
+
+    colored = np.zeros((img.shape[0], img.shape[1], 3))
+    colored[:, :, 0] = img[:, :, 0] + lab[:, :, -1]
+    colored[:, :, 1] = img[:, :, 0]
+    colored[:, :, 2] = img[:, :, 0]
+    #cv2.imshow('img-label', np.concatenate([colored, cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)], axis=1))
+    #cv2.waitKey(0)
+
 
 print(data.shape, labels.shape)
 
