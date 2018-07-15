@@ -107,6 +107,7 @@ class ImageParser():
                     np_image = np.expand_dims(normalized, 3)
                     images.append(np_image)
             else:
+                np_image[np_image == 2.] = 0.0
                 np_image = np.expand_dims(resized, 3)
                 images.append(np_image)
 
