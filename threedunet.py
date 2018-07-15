@@ -7,6 +7,8 @@ from sklearn.model_selection import train_test_split
 from keras.models import load_model
 from keras.optimizers import Adam
 from metrics import dice_coef, dice_coef_loss
+from keras.losses import binary_crossentropy
+
 
 class ThreeDUnet():
 
@@ -87,7 +89,7 @@ class ThreeDUnet():
 
         model = models.Model(inputs=inputs, outputs=conv23)
 
-        model.compile(optimizer=Adam(lr=0.0001), loss=dice_coef_loss, metrics=[dice_coef])
+        model.compile(optimizer=Adam(lr=0.0001), loss=binary_crossentropy, metrics=[dice_coef, binary_crossentropy])
 
         model.summary()
 
