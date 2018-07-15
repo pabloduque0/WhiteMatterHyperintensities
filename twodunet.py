@@ -176,7 +176,7 @@ class TwoDUnet():
                                        verbose=1)
 
         tensorboard_callback = TensorBoard(log_dir=paths["log_path"],
-                                           histogram_freq=0,
+                                           histogram_freq=1,
                                            batch_size=batch_size,
                                            write_graph=True,
                                            write_grads=True,
