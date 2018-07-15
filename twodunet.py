@@ -30,62 +30,62 @@ class TwoDUnet():
 
         inputs = layers.Input(shape=img_shape)
 
-        conv1 = layers.Conv2D(64, kernel_size=3, padding='he_normal', activation='relu')(inputs)
-        conv2 = layers.Conv2D(64, kernel_size=3, padding='he_normal', activation='relu')(conv1)
+        conv1 = layers.Conv2D(64, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(inputs)
+        conv2 = layers.Conv2D(64, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv1)
         maxpool1 = layers.MaxPool2D(pool_size=(2, 2))(conv2)
 
-        conv3 = layers.Conv2D(128, kernel_size=3, padding='he_normal', activation='relu')(maxpool1)
-        conv4 = layers.Conv2D(128, kernel_size=3, padding='he_normal', activation='relu')(conv3)
+        conv3 = layers.Conv2D(128, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(maxpool1)
+        conv4 = layers.Conv2D(128, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv3)
         maxpool2 = layers.MaxPool2D(pool_size=(2, 2))(conv4)
 
-        conv5 = layers.Conv2D(256, kernel_size=3, padding='he_normal', activation='relu')(maxpool2)
-        conv6 = layers.Conv2D(256, kernel_size=3, padding='he_normal', activation='relu')(conv5)
+        conv5 = layers.Conv2D(256, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(maxpool2)
+        conv6 = layers.Conv2D(256, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv5)
         maxpool3 = layers.MaxPool2D(pool_size=(2, 2))(conv6)
 
-        conv7 = layers.Conv2D(512, kernel_size=3, padding='he_normal', activation='relu')(maxpool3)
-        conv8 = layers.Conv2D(512, kernel_size=3, padding='he_normal', activation='relu')(conv7)
+        conv7 = layers.Conv2D(512, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(maxpool3)
+        conv8 = layers.Conv2D(512, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv7)
         maxpool4 = layers.MaxPool2D(pool_size=(2, 2))(conv8)
 
-        conv9 = layers.Conv2D(1024, kernel_size=3, padding='he_normal', activation='relu')(maxpool4)
-        conv10 = layers.Conv2D(1024, kernel_size=3, padding='he_normal', activation='relu')(conv9)
+        conv9 = layers.Conv2D(1024, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(maxpool4)
+        conv10 = layers.Conv2D(1024, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv9)
 
         up_conv10 = layers.UpSampling2D(size=(2, 2))(conv10)
         ch, cw = self.copy_crop(conv8, up_conv10)
         crop_conv8 = layers.Cropping2D(cropping=(ch, cw))(conv8)
         up_samp1 = layers.concatenate([up_conv10, crop_conv8], axis=concat_axis)
-        conv11 = layers.Conv2D(512, kernel_size=2, padding='he_normal', activation='relu')(up_samp1)
+        conv11 = layers.Conv2D(512, kernel_size=2, padding='same', kernel_initializer = 'he_normal', activation='relu')(up_samp1)
 
-        conv12 = layers.Conv2D(512, kernel_size=3, padding='he_normal', activation='relu')(conv11)
-        conv13 = layers.Conv2D(512, kernel_size=3, padding='he_normal', activation='relu')(conv12)
+        conv12 = layers.Conv2D(512, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv11)
+        conv13 = layers.Conv2D(512, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv12)
 
         up_conv13 = layers.UpSampling2D(size=(2, 2))(conv13)
         ch, cw = self.copy_crop(conv6, up_conv13)
         crop_conv6 = layers.Cropping2D(cropping=(ch, cw))(conv6)
         up_samp2 = layers.concatenate([up_conv13, crop_conv6], axis=concat_axis)
-        conv14 = layers.Conv2D(256, kernel_size=3, padding='he_normal', activation='relu')(up_samp2)
+        conv14 = layers.Conv2D(256, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(up_samp2)
 
-        conv15 = layers.Conv2D(256, kernel_size=3, padding='he_normal', activation='relu')(conv14)
-        conv16 = layers.Conv2D(256, kernel_size=3, padding='he_normal', activation='relu')(conv15)
+        conv15 = layers.Conv2D(256, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv14)
+        conv16 = layers.Conv2D(256, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv15)
 
         up_conv16 = layers.UpSampling2D(size=(2, 2))(conv16)
         ch, cw = self.copy_crop(conv4, up_conv16)
         crop_conv4 = layers.Cropping2D(cropping=(ch, cw))(conv4)
         up_samp3 = layers.concatenate([up_conv16, crop_conv4], axis=concat_axis)
-        conv17 = layers.Conv2D(128, kernel_size=3, padding='he_normal', activation='relu')(up_samp3)
+        conv17 = layers.Conv2D(128, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(up_samp3)
 
-        conv18 = layers.Conv2D(128, kernel_size=3, padding='he_normal', activation='relu')(conv17)
-        conv19 = layers.Conv2D(128, kernel_size=3, padding='he_normal', activation='relu')(conv18)
+        conv18 = layers.Conv2D(128, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv17)
+        conv19 = layers.Conv2D(128, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv18)
 
         up_conv19 = layers.UpSampling2D(size=(2, 2))(conv19)
         ch, cw = self.copy_crop(conv2, up_conv19)
         crop_conv2 = layers.Cropping2D(cropping=(ch, cw))(conv2)
         up_samp1 = layers.concatenate([up_conv19, crop_conv2], axis=concat_axis)
-        conv20 = layers.Conv2D(64, kernel_size=3, padding='he_normal', activation='relu')(up_samp1)
+        conv20 = layers.Conv2D(64, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(up_samp1)
 
-        conv21 = layers.Conv2D(64, kernel_size=3, padding='he_normal', activation='relu')(conv20)
-        conv22 = layers.Conv2D(64, kernel_size=3, padding='he_normal', activation='relu')(conv21)
+        conv21 = layers.Conv2D(64, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv20)
+        conv22 = layers.Conv2D(64, kernel_size=3, padding='same', kernel_initializer = 'he_normal', activation='relu')(conv21)
 
-        conv23 = layers.Conv2D(1, kernel_size=1, padding='he_normal', activation='softmax')(conv22)
+        conv23 = layers.Conv2D(1, kernel_size=1, padding='same', kernel_initializer = 'he_normal', activation='softmax')(conv22)
 
         model = models.Model(inputs=inputs, outputs=conv23)
 
