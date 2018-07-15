@@ -80,7 +80,10 @@ class ImageParser():
             np_image = np.swapaxes(np_image, 0, 2)
             resized = self.threed_resize(np_image, slice_shape)
             np_image = np.swapaxes(resized, 0, 2)
-            np_image = np.expand_dims(np_image, 4)
+            normalized = self.normalize_image(np_image)
+            np_image = np.expand_dims(normalized, 4)
+
+            print(np.mean(np_image))
 
             images.append(np_image)
 
@@ -108,6 +111,22 @@ class ImageParser():
             slice_image = np_image[:, :, slice]
             cv2.imshow('Image', slice_image)
             cv2.waitKey(0)
+
+    def normalize_image(self, image):
+        non_black = image[image > 0]
+        flattened_nonblack = np.ravel(non_black)
+        sorted_data = sorted(flattened_nonblack)
+
+        five_percent = int(len(sorted_data) * 0.05)
+        lower_threshold = sorted_data[five_percent]
+        upper_threshold = sorted_data[-five_percent]
+
+        temp_matrix = np.maximum(0, (image - lower_threshold) / (upper_threshold - lower_threshold))
+        normalized = np.minimum(1.0, temp_matrix)
+
+        return normalized
+
+
 
 
     def extract_all_brains(self):
