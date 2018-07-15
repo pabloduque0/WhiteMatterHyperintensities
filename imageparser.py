@@ -81,11 +81,9 @@ class ImageParser():
             resized = self.threed_resize(np_image, slice_shape)
             np_image = np.swapaxes(resized, 0, 2)
             normalized = self.normalize_image(np_image)
-            np_image = np.expand_dims(normalized, 4)
-
-            print(np.mean(np_image))
-
-            images.append(np_image)
+            if normalized is not None:
+                np_image = np.expand_dims(normalized, 4)
+                images.append(np_image)
 
         return images
 
@@ -121,10 +119,14 @@ class ImageParser():
         lower_threshold = sorted_data[five_percent]
         upper_threshold = sorted_data[-five_percent]
 
-        temp_matrix = np.maximum(0, (image - lower_threshold) / (upper_threshold - lower_threshold))
-        normalized = np.minimum(1.0, temp_matrix)
+        try:
+            temp_matrix = np.maximum(0, (image - lower_threshold) / (upper_threshold - lower_threshold))
+            normalized = np.minimum(1.0, temp_matrix)
+            return normalized
+        except Exception as e:
+            print('Error in normalization: ', e)
+            return None
 
-        return normalized
 
 
 
