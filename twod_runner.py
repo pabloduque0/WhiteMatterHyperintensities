@@ -1,4 +1,4 @@
-from other_unet import TwoDUnet
+from twodunet import TwoDUnet
 from imageparser import ImageParser
 import numpy as np
 
