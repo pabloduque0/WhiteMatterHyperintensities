@@ -179,9 +179,9 @@ class TwoDUnet():
         tensorboard_callback = TensorBoard(log_dir=paths["log_path"],
                                            histogram_freq=1,
                                            batch_size=batch_size,
-                                           write_graph=True,
+                                           write_graph=False,
                                            write_grads=True,
-                                           write_images=True,
+                                           write_images=False,
                                            embeddings_freq=0,
                                            embeddings_layer_names=None,
                                            embeddings_metadata=None)
