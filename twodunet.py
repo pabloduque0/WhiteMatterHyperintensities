@@ -5,10 +5,10 @@ import os
 from keras.callbacks import ModelCheckpoint, TensorBoard
 from sklearn.model_selection import train_test_split
 from keras.models import load_model
-from keras.optimizers import Adam
+from keras.optimizers import Adam, SGD
 from metrics import dice_coef, dice_coef_loss
 from keras.losses import binary_crossentropy
-
+from keras.initializers import RandomNormal
 
 class TwoDUnet():
 
@@ -29,7 +29,6 @@ class TwoDUnet():
         concat_axis = 3
 
         inputs = layers.Input(shape=img_shape)
-
         conv1 = layers.Conv2D(64, kernel_size=3, padding='same', kernel_initializer='he_normal', activation='relu')(inputs)
         conv2 = layers.Conv2D(64, kernel_size=3, padding='same', kernel_initializer='he_normal', activation='relu')(conv1)
         maxpool1 = layers.MaxPool2D(pool_size=(2, 2))(conv2)
@@ -50,8 +49,6 @@ class TwoDUnet():
         conv10 = layers.Conv2D(1024, kernel_size=3, padding='same', kernel_initializer='he_normal', activation='relu')(conv9)
 
         up_conv10 = layers.UpSampling2D(size=(2, 2))(conv10)
-        #ch, cw = self.copy_crop(conv8, up_conv10)
-        #crop_conv8 = layers.Cropping2D(cropping=(ch, cw))(conv8)
         up_samp1 = layers.concatenate([conv8, up_conv10], axis=concat_axis)
         conv11 = layers.Conv2D(512, kernel_size=2, padding='same', kernel_initializer='he_normal', activation='relu')(up_samp1)
 
@@ -59,8 +56,6 @@ class TwoDUnet():
         conv13 = layers.Conv2D(512, kernel_size=3, padding='same', kernel_initializer='he_normal', activation='relu')(conv12)
 
         up_conv13 = layers.UpSampling2D(size=(2, 2))(conv13)
-        #ch, cw = self.copy_crop(conv6, up_conv13)
-        #crop_conv6 = layers.Cropping2D(cropping=(ch, cw))(conv6)
         up_samp2 = layers.concatenate([conv6, up_conv13], axis=concat_axis)
         conv14 = layers.Conv2D(256, kernel_size=3, padding='same', kernel_initializer='he_normal', activation='relu')(up_samp2)
 
@@ -68,8 +63,6 @@ class TwoDUnet():
         conv16 = layers.Conv2D(256, kernel_size=3, padding='same', kernel_initializer='he_normal', activation='relu')(conv15)
 
         up_conv16 = layers.UpSampling2D(size=(2, 2))(conv16)
-        #ch, cw = self.copy_crop(conv4, up_conv16)
-        #crop_conv4 = layers.Cropping2D(cropping=(ch, cw))(conv4)
         up_samp3 = layers.concatenate([conv4, up_conv16], axis=concat_axis)
         conv17 = layers.Conv2D(128, kernel_size=3, padding='same', kernel_initializer='he_normal', activation='relu')(up_samp3)
 
@@ -77,8 +70,6 @@ class TwoDUnet():
         conv19 = layers.Conv2D(128, kernel_size=3, padding='same', kernel_initializer='he_normal', activation='relu')(conv18)
 
         up_conv19 = layers.UpSampling2D(size=(2, 2))(conv19)
-        #ch, cw = self.copy_crop(conv2, up_conv19)
-        #crop_conv2 = layers.Cropping2D(cropping=(ch, cw))(conv2)
         up_samp1 = layers.concatenate([conv2, up_conv19], axis=concat_axis)
         conv20 = layers.Conv2D(64, kernel_size=3, padding='same', kernel_initializer='he_normal', activation='relu')(up_samp1)
 
@@ -89,8 +80,8 @@ class TwoDUnet():
 
         model = models.Model(inputs=inputs, outputs=conv23)
 
-        model.compile(optimizer=Adam(lr=0.001), loss=binary_crossentropy,
-                      metrics=[dice_coef, binary_crossentropy, 'accuracy'])
+        #model.compile(optimizer=SGD(lr=0.01, momentum=0.99, nesterov=True), loss=dice_coef_loss, metrics=[dice_coef, binary_crossentropy])
+        model.compile(optimizer=Adam(lr=0.01), loss=dice_coef_loss, metrics=[dice_coef, binary_crossentropy])
 
         model.summary()
 
