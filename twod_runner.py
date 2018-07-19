@@ -28,9 +28,13 @@ slice_shape = (240, 240)
 
 data_t1 = parser.get_all_images_np_twod(all_t1, slice_shape)
 data_flair = parser.get_all_images_np_twod(all_flair, slice_shape)
+data_tophat = parser.generate_tophat(data_flair)
+
+
 print(data_t1[0].shape)
 print(data_flair[0].shape)
-all_data = np.concatenate([data_t1, data_flair], axis=3)
+print(data_tophat[0].shape)
+all_data = np.concatenate([data_t1, data_flair, data_tophat], axis=3)
 labels = parser.get_all_images_np_twod(all_labels, slice_shape, normalization=False)
 
 data = np.asanyarray(all_data)
@@ -44,7 +48,7 @@ print(data.shape, labels.shape)
 
 unet = TwoDUnet(model_path=None, img_shape=data.shape[1:])
 
-training_name = 'third_test'
+training_name = 'tophat_test'
 base_path = '/home/pablo/Google Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/'
 test_size = 0.3
 

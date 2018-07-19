@@ -168,6 +168,17 @@ class ImageParser():
             return None
 
 
+    def generate_tophat(self, dataset):
+
+        tophat_list = []
+        kernel = np.ones((3, 3))
+        for image in dataset:
+            tophat = cv2.morphologyEx(image, cv2.MORPH_TOPHAT, kernel)
+            tophat_list.append(np.expand_dims(tophat, axis=2))
+
+        return tophat_list
+
+
 
 
 
