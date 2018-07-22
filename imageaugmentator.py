@@ -1,9 +1,7 @@
-from keras.preprocessing.image import ImageDataGenerator
-from matplotlib import pyplot
 import emoji
 import numpy as np
 import scipy.ndimage as ndi
-import cv2
+
 
 class ImageAugmentator():
 
@@ -16,27 +14,28 @@ class ImageAugmentator():
             print(emoji.emojize('Wrong input :thumbs_down: . Image lists must be have the same length.'))
             return
 
-        length_third = len(dataset_x) // 3
+        all_indexes = np.arange(0, len(dataset_x)-1)
+        half_indexes = np.random.randint(0, len(dataset_x)-1, len(dataset_x)//2)
+        other_half_indexes = list(set(all_indexes).difference(set(half_indexes)))
 
-        rotation_slice_x = dataset_x[:length_third]
-        rotation_slice_y = dataset_y[:length_third]
+        dataset_y_copy = np.concatenate([dataset_y, dataset_y, dataset_y], axis=3)
+
+        # Rotations
+        rotation_slice_x = dataset_x[half_indexes]
+        rotation_slice_y = dataset_y_copy[half_indexes]
         rotated_xs, rotated_ys = self.perform_rotations(rotation_slice_x, rotation_slice_y, 10)
-        dataset_x.extend(rotated_xs)
-        dataset_y.extend(rotated_ys)
+        aug_dataset_x = np.concatenate([dataset_x, rotated_xs], axis=0)
+        rotated_ys = np.expand_dims(np.asanyarray(rotated_ys)[:, :, :, 0], axis=3)
+        aug_dataset_y = np.concatenate([dataset_y, rotated_ys], axis=0)
 
-        flip_slice_x = dataset_x[length_third:length_third * 2]
-        flip_slice_y = dataset_y[length_third:length_third * 2]
-        flipped_xs, flipped_ys = self.perform_flips(flip_slice_x, flip_slice_y)
-        dataset_x.extend(flipped_xs)
-        dataset_y.extend(flipped_ys)
-
-        shift_slice_x = dataset_x[length_third * 2:length_third * 3]
-        shift_slice_y = dataset_y[length_third * 2:length_third * 3]
+        # Shifts
+        shift_slice_x = dataset_x[other_half_indexes]
+        shift_slice_y = dataset_y[other_half_indexes]
         shift_xs, shift_ys = self.perform_shifts(shift_slice_x, shift_slice_y, 0.3, 0.3)
-        dataset_x.extend(shift_xs)
-        dataset_y.extend(shift_ys)
+        aug_dataset_x = np.concatenate([aug_dataset_x, shift_xs], axis=0)
+        aug_dataset_y = np.concatenate([aug_dataset_y, shift_ys], axis=0)
 
-        return dataset_x, dataset_y
+        return aug_dataset_x, aug_dataset_y
 
 
 
@@ -87,7 +86,7 @@ class ImageAugmentator():
         return shifted_list_x, shifted_list_y
 
     def random_shift(self, x, y, wrg, hrg, row_axis=0, col_axis=1, channel_axis=2,
-                     fill_mode='constant', cval=255):
+                     fill_mode='constant', cval=0.0):
         """Performs a random spatial shift of a Numpy image tensor.
         # Arguments
             x: Input tensor. Must be 3D.
@@ -129,7 +128,7 @@ class ImageAugmentator():
 
         return x, y
 
-    def random_rotation(self, x, y, rg, row_axis=0, col_axis=1, channel_axis=2, fill_mode='constant', cval=255):
+    def random_rotation(self, x, y, rg, row_axis=0, col_axis=1, channel_axis=2, fill_mode='constant', cval=0.0):
         """Performs a random rotation of a Numpy image tensor.
         # Arguments
             x: Input tensor. Must be 3D.
@@ -154,6 +153,7 @@ class ImageAugmentator():
                                     [np.sin(theta), np.cos(theta), 0],
                                     [0, 0, 1]])
 
+
         h, w = x.shape[row_axis], x.shape[col_axis]
         transform_matrix = self.transform_matrix_offset_center(rotation_matrix, h, w)
         x = self.apply_transform(x, transform_matrix, channel_axis, fill_mode, cval)
@@ -170,7 +170,7 @@ class ImageAugmentator():
         return transform_matrix
 
 
-    def apply_transform(self, x, transform_matrix, channel_axis=0, fill_mode='constant', cval=1.0):
+    def apply_transform(self, x, transform_matrix, channel_axis=0, fill_mode='constant', cval=0.0):
         """Apply the image transformation specified by a matrix.
         # Arguments
             x: 2D numpy array, single image.
