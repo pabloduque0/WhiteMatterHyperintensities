@@ -8,3 +8,4 @@ logs/*
 *.nii
 
 *.pyc
+*.hdf5
