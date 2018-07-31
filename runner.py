@@ -33,17 +33,20 @@ slice_shape = (240, 240)
 
 data_t1 = parser.get_all_images_np(all_t1, slice_shape)
 data_flair = parser.get_all_images_np(all_flair, slice_shape)
+
 labels = parser.get_all_images_np(all_labels, slice_shape, normalization=False)
 
-data = np.stack(data, axis=0)
+all_data = np.concatenate([data_t1, data_flair], axis=3)
+
+data = np.asanyarray(all_data)
 labels = np.asanyarray(labels)
 
 print(data.shape, labels.shape)
 
 unet = ThreeDUnet(model_path=None, img_shape=data.shape[1:])
 
-training_name = 'first_test'
-base_path = '/home/pablo/Google Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/'
+training_name = '3d_test'
+base_path = '/harddrive/home/pablo/Google Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities'
 test_size = 0.3
 
 print(data.shape, labels.shape)
