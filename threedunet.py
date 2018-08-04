@@ -30,62 +30,51 @@ class ThreeDUnet():
 
         inputs = layers.Input(shape=img_shape)
 
-        conv1 = layers.Conv3D(64, kernel_size=3, padding='same', activation='relu')(inputs)
+        conv1 = layers.Conv3D(32, kernel_size=3, padding='same', activation='relu')(inputs)
         conv2 = layers.Conv3D(64, kernel_size=3, padding='same', activation='relu')(conv1)
         maxpool1 = layers.MaxPool3D(pool_size=(2, 2, 2), strides=(2, 2, 2))(conv2)
-        #bn_1 = layers.BatchNormalization(axis=-1, momentum=0.99, epsilon=0.001, center=True, scale=True, beta_initializer='zeros',
+        #bn_1 = layers.BatchNormalization(axis=-1, momentum=0.99, epsilon=0.001, center=True, scale=True, beta_initializer='zeros',)
         #                   gamma_initializer='ones', moving_mean_initializer='zeros',
         #                   moving_variance_initializer='ones', beta_regularizer=None, gamma_regularizer=None,
         #                   beta_constraint=None, gamma_constraint=None)
 
-        conv3 = layers.Conv3D(128, kernel_size=3, padding='same', activation='relu')(maxpool1)
+        conv3 = layers.Conv3D(64, kernel_size=3, padding='same', activation='relu')(maxpool1)
         conv4 = layers.Conv3D(128, kernel_size=3, padding='same', activation='relu')(conv3)
         maxpool2 = layers.MaxPool3D(pool_size=(2, 2, 2), strides=(2, 2, 2))(conv4)
 
-        conv5 = layers.Conv3D(256, kernel_size=3, padding='same', activation='relu')(maxpool2)
+        conv5 = layers.Conv3D(128, kernel_size=3, padding='same', activation='relu')(maxpool2)
         conv6 = layers.Conv3D(256, kernel_size=3, padding='same', activation='relu')(conv5)
         maxpool3 = layers.MaxPool3D(pool_size=(2, 2, 2), strides=(2, 2, 2))(conv6)
 
-        conv7 = layers.Conv3D(512, kernel_size=3, padding='same', activation='relu')(maxpool3)
-        conv8 = layers.Conv3D(512, kernel_size=3, padding='same', activation='relu')(conv7)
-        maxpool4 = layers.MaxPool3D(pool_size=(2, 2, 2), strides=(2, 2, 2))(conv8)
+        conv7 = layers.Conv3D(256, kernel_size=3, padding='same', activation='relu')(maxpool3)
+        conv8 = layers.Conv3D(256, kernel_size=3, padding='same', activation='relu')(conv7)
 
-        conv9 = layers.Conv3D(1024, kernel_size=3, padding='same', activation='relu')(maxpool4)
-        conv10 = layers.Conv3D(1024, kernel_size=3, padding='same', activation='relu')(conv9)
+        up_samp1 = layers.UpSampling3D(size=(2, 2, 2))(conv8)
+        conv9 = layers.Conv3D(512, kernel_size=2, padding='same', activation='relu')(up_samp1)
+        concat_1 = layers.concatenate([conv6, conv9], axis=concat_axis)
 
-        up_conv10 = layers.UpSampling3D(size=(2, 2, 2), strides=(2, 2, 2))(conv10)
-        up_samp1 = layers.concatenate([conv8, up_conv10], axis=concat_axis)
-        conv11 = layers.Conv3D(512, kernel_size=2, padding='same', activation='relu')(up_samp1)
+        conv10 = layers.Conv3D(256, kernel_size=3, padding='same', activation='relu')(concat_1)
+        conv11 = layers.Conv3D(256, kernel_size=3, padding='same', activation='relu')(conv10)
 
-        conv12 = layers.Conv3D(512, kernel_size=3, padding='same', activation='relu')(conv11)
-        conv13 = layers.Conv3D(512, kernel_size=3, padding='same', activation='relu')(conv12)
+        up_samp2 = layers.UpSampling3D(size=(2, 2, 2))(conv11)
+        conv12 = layers.Conv3D(256, kernel_size=2, padding='same', activation='relu')(up_samp2)
+        concat_2 = layers.concatenate([conv4, conv12], axis=concat_axis)
 
-        up_conv13 = layers.UpSampling3D(size=(2, 2, 2), strides=(2, 2, 2))(conv13)
-        up_samp2 = layers.concatenate([conv6, up_conv13], axis=concat_axis)
-        conv14 = layers.Conv3D(256, kernel_size=3, padding='same', activation='relu')(up_samp2)
+        conv13 = layers.Conv3D(128, kernel_size=3, padding='same', activation='relu')(concat_2)
+        conv14 = layers.Conv3D(128, kernel_size=3, padding='same', activation='relu')(conv13)
 
-        conv15 = layers.Conv3D(256, kernel_size=3, padding='same', activation='relu')(conv14)
-        conv16 = layers.Conv3D(256, kernel_size=3, padding='same', activation='relu')(conv15)
+        up_samp3 = layers.UpSampling3D(size=(2, 2, 2))(conv14)
+        conv15 = layers.Conv3D(128, kernel_size=2, padding='same', activation='relu')(up_samp3)
+        concat_3 = layers.concatenate([conv2, conv15], axis=concat_axis)
 
-        up_conv16 = layers.UpSampling3D(size=(2, 2, 2), strides=(2, 2, 2))(conv16)
-        up_samp3 = layers.concatenate([conv4, up_conv16], axis=concat_axis)
-        conv17 = layers.Conv3D(128, kernel_size=3, padding='same', activation='relu')(up_samp3)
+        conv16 = layers.Conv3D(64, kernel_size=3, padding='same', activation='relu')(concat_3)
+        conv17 = layers.Conv3D(64, kernel_size=3, padding='same', activation='relu')(conv16)
 
-        conv18 = layers.Conv3D(128, kernel_size=3, padding='same', activation='relu')(conv17)
-        conv19 = layers.Conv3D(128, kernel_size=3, padding='same', activation='relu')(conv18)
+        conv18 = layers.Conv3D(1, kernel_size=1, padding='same', activation='softmax')(conv17)
 
-        up_conv19 = layers.UpSampling3D(size=(2, 2, 2), strides=(2, 2, 2))(conv19)
-        up_samp1 = layers.concatenate([conv2, up_conv19], axis=concat_axis)
-        conv20 = layers.Conv3D(64, kernel_size=3, padding='same', activation='relu')(up_samp1)
+        model = models.Model(inputs=inputs, outputs=conv18)
 
-        conv21 = layers.Conv3D(64, kernel_size=3, padding='same', activation='relu')(conv20)
-        conv22 = layers.Conv3D(64, kernel_size=3, padding='same', activation='relu')(conv21)
-
-        conv23 = layers.Conv3D(1, kernel_size=1, padding='same', activation='softmax')(conv22)
-
-        model = models.Model(inputs=inputs, outputs=conv23)
-
-        model.compile(optimizer=Adam(lr=0.001), loss=binary_crossentropy,
+        model.compile(optimizer=Adam(lr=0.01), loss=binary_crossentropy,
                       metrics=[dice_coef, binary_crossentropy])
 
         model.summary()
