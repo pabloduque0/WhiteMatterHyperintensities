@@ -36,7 +36,7 @@ data_flair = parser.get_all_images_np(all_flair, slice_shape)
 
 labels = parser.get_all_images_np(all_labels, slice_shape, normalization=False)
 
-all_data = np.concatenate([data_t1, data_flair], axis=3)
+all_data = np.concatenate([data_t1, data_flair], axis=4)
 
 data = np.asanyarray(all_data)
 labels = np.asanyarray(labels)
