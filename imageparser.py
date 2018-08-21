@@ -5,7 +5,8 @@ import itk
 import cv2
 import numpy as np
 import subprocess
-
+import matplotlib.pyplot as plt
+from matplotlib import cm
 
 class ImageParser():
 
