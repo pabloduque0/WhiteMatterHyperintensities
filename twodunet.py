@@ -81,7 +81,7 @@ class TwoDUnet():
         model = models.Model(inputs=inputs, outputs=conv23)
 
         #model.compile(optimizer=SGD(lr=0.01, momentum=0.99, nesterov=True), loss=dice_coef_loss, metrics=[dice_coef, binary_crossentropy])
-        model.compile(optimizer=Adam(lr=0.01), loss=dice_coef_loss, metrics=[dice_coef, binary_crossentropy])
+        model.compile(optimizer=Adam(lr=0.01), loss=binary_crossentropy, metrics=[dice_coef, binary_crossentropy])
 
         model.summary()
 
@@ -188,6 +188,7 @@ class TwoDUnet():
 
         }
         self.save_specs(paths['specs_path'], fit_specs)
+
 
         self.model.fit(X_train, y_train,
                        batch_size=batch_size,
