@@ -143,16 +143,19 @@ class ImageParser():
 
         np_image = np.swapaxes(np_image, 0, 2)
         np_image = np_image.astype(np.uint8)
-        print(np_image.dtype)
         rows, columns, slices = np_image.shape
-        print(type(np_image))
         for slice in range(slices):
             slice_image = np_image[:, :, slice]
             cv2.imshow('Image', slice_image)
             cv2.waitKey(0)
 
-    def normalize_image(self, image):
-        non_black = image[image > 0]
+    def normalize_images(self, images_list):
+
+        normalized_list = []
+
+        np_list = np.concatenate(images_list, axis=1)
+        flattened = np.ravel(np_list)
+        non_black = flattened[flattened > 0]
         flattened_nonblack = np.ravel(non_black)
         sorted_data = sorted(flattened_nonblack)
 
