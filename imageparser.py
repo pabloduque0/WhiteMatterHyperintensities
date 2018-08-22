@@ -114,14 +114,62 @@ class ImageParser():
 
         return np.asanyarray(slices)
 
+    def resize_slices(self, slices_list, to_slice_shape):
 
+        resized_slices = []
+
+        for slice in slices_list:
+            slice_copy = slice.copy()
+
+            if slice.shape[0] < to_slice_shape[0]:
+                diff = to_slice_shape[0] - slice.shape[0]
+                if self.is_odd(diff):
+                    slice_copy = cv2.copyMakeBorder(slice_copy, diff//2, diff//2 + 1, 0, 0,
+                                                    cv2.BORDER_CONSTANT,
+                                                    value=0.0)
+                else:
+                    slice_copy = cv2.copyMakeBorder(slice_copy, diff // 2, diff // 2, 0, 0,
+                                                    cv2.BORDER_CONSTANT,
+                                                    value=0.0)
+
+            elif slice.shape[0] > to_slice_shape[0]:
+                diff = slice.shape[0] - to_slice_shape[0]
+                if self.is_odd(diff):
+                    slice_copy = slice_copy[diff//2 : -diff//2 + 1, :]
+                else:
+                    slice_copy = slice_copy[diff // 2: -diff // 2, :]
+
+            if slice.shape[1] < to_slice_shape[1]:
+                diff = to_slice_shape[1] - slice.shape[1]
+                if self.is_odd(diff):
+                    slice_copy = cv2.copyMakeBorder(slice_copy, 0, 0, diff // 2, diff // 2 + 1,
+                                                    cv2.BORDER_CONSTANT,
+                                                    value=0.0)
+                else:
+                    slice_copy = cv2.copyMakeBorder(slice_copy, 0, 0, diff // 2, diff // 2,
+                                                    cv2.BORDER_CONSTANT,
+                                                    value=0.0)
+            elif slice.shape[1] > to_slice_shape[1]:
+                diff = slice.shape[1] - to_slice_shape[1]
+                if self.is_odd(diff):
+                    slice_copy = slice_copy[:, diff // 2: -diff // 2 + 1]
+                else:
+                    slice_copy = slice_copy[:, diff // 2: -diff // 2]
+
+            resized_slices.append(slice_copy)
+
+        return resized_slices
+
+    def is_odd(self, number):
+
+        return number % 2 != 0
 
     def threed_resize(self, image, slice_shape):
 
         all_slices = []
         for index in range(image.shape[2]):
             slice = image[:, :, index]
-            resized = cv2.resize(slice, (slice_shape[1], slice_shape[0]))
+            resized = cv2.resize(slice, (slice_shape[1], slice_shape[0]), cv2.INTER_CUBIC)
             all_slices.append(resized)
 
         return np.asanyarray(all_slices)
