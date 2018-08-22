@@ -94,26 +94,14 @@ class ImageParser():
 
         return images
 
-    def get_all_images_np_twod(self, paths_list, slice_shape, normalization=True):
+    def get_all_images_np_twod(self, paths_list):
 
-        images = []
+        slices_list = []
         for path in paths_list:
             image = itk.imread(path)
             np_image = itk.GetArrayFromImage(image)
-            np_image = np.swapaxes(np_image, 0, 2)
-            resized = self.threed_resize(np_image, slice_shape)
-
-            if normalization:
-                normalized = self.normalize_image(resized)
-                if normalized is not None:
-                    np_image = np.expand_dims(normalized, 3)
-                    images.append(np_image)
-            else:
-                resized[resized > 1.] = 0.0
-                np_image = np.expand_dims(resized, 3)
-                images.append(np_image)
-
-        slices_list = self.get_slices_list(images)
+            for slice in np_image:
+                slices_list.append(slice)
 
         return slices_list
 
