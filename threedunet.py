@@ -70,7 +70,7 @@ class ThreeDUnet():
         conv16 = layers.Conv3D(64, kernel_size=3, padding='same', activation='relu')(concat_3)
         conv17 = layers.Conv3D(64, kernel_size=3, padding='same', activation='relu')(conv16)
 
-        conv18 = layers.Conv3D(1, kernel_size=1, padding='same', activation='softmax')(conv17)
+        conv18 = layers.Conv3D(1, kernel_size=1, padding='same', activation='sigmoid')(conv17)
 
         model = models.Model(inputs=inputs, outputs=conv18)
 
