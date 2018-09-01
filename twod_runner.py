@@ -42,6 +42,8 @@ amsterdam_data_t1 = parser.get_all_images_np_twod(t1_amsterdam)
 amsterdam_resized_t1 = parser.resize_slices(amsterdam_data_t1, slice_shape)
 amsterdam_normalized_t1 = parser.normalize_images(amsterdam_resized_t1)
 
+#print('T1: ', np.max(np.asanyarray(utrecht_data_t1).ravel()), np.max(np.asanyarray(singapore_resized_t1).ravel()), np.max(np.asanyarray(amsterdam_data_t1).ravel()))
+
 '''
 
 FLAIR DATA
@@ -65,6 +67,8 @@ amsterdam_resized_flairs = parser.resize_slices(amsterdam_data_flair, slice_shap
 amsterdam_normalized_flairs = parser.normalize_images(amsterdam_resized_flairs)
 
 amsterdam_data_tophat = parser.generate_tophat(amsterdam_normalized_flairs)
+
+#print('Flairs: ', np.max(np.asanyarray(utrecht_data_flair)), np.max(np.asanyarray(singapore_resized_flairs)), np.max(np.asanyarray(amsterdam_data_flair)))
 
 '''
 
@@ -119,21 +123,20 @@ ANALYSIS
 #parser.analyze_hits_locats(utrecht_data_t1, utrecht_data_flair, labels_utrecht_imgs)
 #parser.analyze_hits_locats(singapore_data_t1, singapore_data_flair, labels_singapore_imgs)
 #parser.analyze_hits_locats(amsterdam_data_t1, amsterdam_data_flair, labels_amsterdam_imgs)
-parser.analyze_hits_locats(utrecht_normalized_t1, utrecht_normalized_flairs, labels_utrecht_imgs)
-parser.analyze_hits_locats(singapore_normalized_t1, singapore_normalized_flairs, labels_singapore_imgs)
-parser.analyze_hits_locats(amsterdam_normalized_t1, amsterdam_normalized_flairs, labels_amsterdam_imgs)
+#parser.analyze_hits_locats(utrecht_normalized_t1, utrecht_normalized_flairs, labels_utrecht_imgs)
+#parser.analyze_hits_locats(singapore_normalized_t1, singapore_normalized_flairs, labels_singapore_imgs)
+#parser.analyze_hits_locats(amsterdam_normalized_t1, amsterdam_normalized_flairs, labels_amsterdam_imgs)
 
 '''
 
 TRAINING
 
 '''
-training_name = 'new_resizing'
+training_name = 'normalization3'
 base_path = '/harddrive/home/pablo/Google Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities'
 test_size = 0.3
 
 print(all_data.shape, final_label_imgs.shape)
 
-raise Exception
 unet = TwoDUnet(model_path=None, img_shape=all_data.shape[1:])
 unet.train(all_data, final_label_imgs, test_size, training_name, base_path, epochs=10, batch_size=1)
