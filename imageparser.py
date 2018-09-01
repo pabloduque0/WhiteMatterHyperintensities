@@ -198,11 +198,17 @@ class ImageParser():
         five_percent = int(len(sorted_data) * 0.05)
         lower_threshold = sorted_data[five_percent]
         upper_threshold = sorted_data[-five_percent]
+        full_max = np.max(flattened)
 
         for slice in images_list:
 
-            temp_matrix = np.maximum(0, (slice - lower_threshold) / (upper_threshold - lower_threshold))
-            normalized = np.minimum(1.0, temp_matrix)
+            upper_indexes = np.where(slice >= upper_threshold)
+            lower_indexes = np.where(slice <= lower_threshold)
+
+            slice[upper_indexes] = 1.0
+            slice[lower_indexes] = 0.0
+
+            normalized = slice / full_max
 
             normalized_list.append(normalized)
 
