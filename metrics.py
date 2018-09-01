@@ -23,9 +23,9 @@ def weighted_crossentropy_pixelwise(y_true, y_pred):
     y_pred = K.log(y_pred / (1 - y_pred))
 
     wmh_indexes = np.where(y_true == 1.0)
-    weights = np.repeat(0.8, 240 * 240)
+    weights = np.repeat(1.0, 240 * 240)
     weights = np.reshape(weights, (1, 240, 240, 1))
-    weights[wmh_indexes] = 10.0
+    weights[wmh_indexes] = 5000.0
 
     crossentropy = (y_true * weights * -K.log(sigmoid(y_pred)) + (1 - y_true * weights) * -K.log(1 - sigmoid(y_pred)))
     return crossentropy
