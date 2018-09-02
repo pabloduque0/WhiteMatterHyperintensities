@@ -8,8 +8,7 @@ from keras.models import load_model
 from keras.optimizers import Adam, SGD
 from metrics import dice_coef, dice_coef_loss, weighted_crossentropy
 from keras.losses import binary_crossentropy
-from keras.initializers import RandomNormal
-
+import cv2
 
 class TwoDUnet():
 
@@ -198,7 +197,20 @@ class TwoDUnet():
                        verbose=1)
 
 
+    def predict_and_save(self, data, labels, output_path, batch_size=1):
 
+        if not output_path.endswith('/'):
+            output_path += '/'
 
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+
+        predictions = self.model.predict(data, batch_size=batch_size, verbose=1)
+
+        for index, (pred, original, label) in enumerate(zip(predictions, data, labels)):
+
+            cv2.imwrite(output_path + 'original_' + str(index) + '.png', original)
+            cv2.imwrite(output_path + 'prediction_' + str(index) + '.png', pred)
+            cv2.imwrite(output_path + 'label_' + str(index) + '.png', label)
 
 
