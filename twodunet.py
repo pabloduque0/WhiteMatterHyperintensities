@@ -165,11 +165,10 @@ class TwoDUnet():
         paths = self.create_folders(training_name, base_path)
 
         checkpointer = ModelCheckpoint(filepath=paths["weights_path"],
-                                       save_best_only=False,
+                                       save_best_only=True,
                                        verbose=1)
 
         tensorboard_callback = TensorBoard(log_dir=paths["log_path"],
-                                           histogram_freq=1,
                                            batch_size=batch_size,
                                            write_graph=False,
                                            write_grads=False,
