@@ -2,6 +2,8 @@ import numpy as np
 from twodunet import TwoDUnet
 from imageparser import ImageParser
 from imageaugmentator import ImageAugmentator
+from sklearn.model_selection import train_test_split
+
 
 parser = ImageParser()
 utrech_dataset, singapore_dataset, amsterdam_dataset = parser.get_all_images_and_labels()
@@ -107,11 +109,12 @@ AUGMENTATION
 
 '''
 
-# Augmented data as np
-#augmentator = ImageAugmentator()
-#data_augmented, labels_agumented = augmentator.perform_all_augmentations(all_data, final_label_imgs)
-#data_augmented = np.asanyarray(data_augmented)
-#labels_agumented = np.asanyarray(labels_agumented)
+augmentator = ImageAugmentator()
+data_augmented, labels_agumented = augmentator.perform_all_augmentations(all_data, final_label_imgs)
+data_train, validation_data, labels_train, validation_labels = train_test_split(data_augmented, labels_agumented, test_size=0.1)
+
+data_train = np.asanyarray(data_train)
+labels_train = np.asanyarray(labels_train)
 
 '''
 
@@ -132,11 +135,23 @@ ANALYSIS
 TRAINING
 
 '''
-training_name = 'normalization3'
+training_name = 'bigger_kernel'
 base_path = '/harddrive/home/pablo/Google Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities'
 test_size = 0.3
 
-print(all_data.shape, final_label_imgs.shape)
+print(data_train.shape, labels_train.shape)
 
-unet = TwoDUnet(model_path=None, img_shape=all_data.shape[1:])
-unet.train(all_data, final_label_imgs, test_size, training_name, base_path, epochs=10, batch_size=1)
+unet = TwoDUnet(model_path=None, img_shape=data_train.shape[1:])
+unet.train(data_train, labels_train, test_size, training_name, base_path, epochs=10, batch_size=1)
+
+'''
+
+VALIDATING
+
+'''
+output_path = base_path + '/output/'
+validation_data = np.asanyarray(validation_data)
+validation_labels = np.asanyarray(validation_labels)
+
+unet.predict_and_save(validation_data, validation_labels, output_path)
+
