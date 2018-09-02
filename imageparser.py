@@ -100,6 +100,10 @@ class ImageParser():
         for path in paths_list:
             image = itk.imread(path)
             np_image = itk.GetArrayFromImage(image)
+            if np_image.shape[1:] == (232, 256):
+                np_image = np.swapaxes(np_image, 1, 2)
+                print('Corrected axises')
+
             for slice in np_image:
                 slices_list.append(slice)
 
