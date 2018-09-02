@@ -81,7 +81,7 @@ class TwoDUnet():
         model = models.Model(inputs=inputs, outputs=conv23)
 
         #model.compile(optimizer=SGD(lr=0.01, momentum=0.99, nesterov=True), loss=dice_coef_loss, metrics=[dice_coef, binary_crossentropy])
-        model.compile(optimizer=Adam(lr=0.01), loss=weighted_crossentropy, metrics=[dice_coef, binary_crossentropy, weighted_crossentropy])
+        model.compile(optimizer=Adam(lr=0.001), loss=weighted_crossentropy, metrics=[dice_coef, binary_crossentropy, weighted_crossentropy])
 
         model.summary()
 
