@@ -31,17 +31,29 @@ def weighted_crossentropy_pixelwise(y_true, y_pred):
     return crossentropy
 
 
-def count(y_true, y_pred):
+def prediction_count(y_true, y_pred):
     return tf.count_nonzero(y_pred)
+
 
 def label_count(y_true, y_pred):
     return tf.count_nonzero(y_true)
+
+
+def prediction_sum(y_true, y_pred):
+    return tf.reduce_sum(y_pred)
+
+
+def label_sum(y_true, y_pred):
+    return tf.reduce_sum(y_true)
+
 
 dice_coef = dice_coefficient
 dice_coef_loss = dice_coefficient_loss
 
 weighted_crossentropy = weighted_crossentropy_pixelwise
 
-predicted_count = count
+predicted_count = prediction_count
+predicted_sum = prediction_sum
 
 ground_truth_count = label_count
+ground_truth_sum =   label_sum
