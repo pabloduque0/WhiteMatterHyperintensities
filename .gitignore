@@ -1,11 +1,7 @@
-
 __pycache__/*
-
 \.idea/*
-
 logs/*
-
+output/*
 *.nii
-
 *.pyc
 *.hdf5
