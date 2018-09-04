@@ -3,6 +3,8 @@ from twodunet import TwoDUnet
 from imageparser import ImageParser
 from imageaugmentator import ImageAugmentator
 from sklearn.model_selection import train_test_split
+import cv2
+import matplotlib.pyplot as plt
 
 
 parser = ImageParser()
@@ -100,6 +102,11 @@ labels_amsterdam_imgs = parser.get_all_images_np_twod(labels_amsterdam)
 resized_labels = parser.resize_slices(all_labels_imgs, slice_shape)
 final_label_imgs = parser.remove_third_label(resized_labels)
 
+for data, label in zip(all_data, final_label_imgs):
+    print(len(np.flatnonzero(label)))
+    images = np.concatenate([data[:, :, 0]*255, data[:, :, 1]*255, data[:, :, 2]*255, label*255], axis=1)
+    plt.imshow(images, cmap='gray')
+    plt.show()
 
 final_label_imgs = np.expand_dims(np.asanyarray(final_label_imgs), axis=3)
 
@@ -111,6 +118,7 @@ AUGMENTATION
 
 augmentator = ImageAugmentator()
 data_augmented, labels_agumented = augmentator.perform_all_augmentations(all_data, final_label_imgs)
+
 data_train, validation_data, labels_train, validation_labels = train_test_split(data_augmented, labels_agumented, test_size=0.05)
 
 data_train = np.asanyarray(data_train)
