@@ -111,7 +111,7 @@ AUGMENTATION
 
 augmentator = ImageAugmentator()
 data_augmented, labels_agumented = augmentator.perform_all_augmentations(all_data, final_label_imgs)
-data_train, validation_data, labels_train, validation_labels = train_test_split(data_augmented, labels_agumented, test_size=0.1)
+data_train, validation_data, labels_train, validation_labels = train_test_split(data_augmented, labels_agumented, test_size=0.05)
 
 data_train = np.asanyarray(data_train)
 labels_train = np.asanyarray(labels_train)
