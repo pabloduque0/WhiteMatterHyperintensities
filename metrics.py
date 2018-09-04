@@ -31,8 +31,12 @@ def weighted_crossentropy_pixelwise(y_true, y_pred):
     return crossentropy
 
 
+def count(y_true, y_pred):
+    return len(np.flatnonzero(y_pred))
 
 dice_coef = dice_coefficient
 dice_coef_loss = dice_coefficient_loss
 
 weighted_crossentropy = weighted_crossentropy_pixelwise
+
+predicted_count = count
