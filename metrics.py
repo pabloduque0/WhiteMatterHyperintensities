@@ -32,7 +32,7 @@ def weighted_crossentropy_pixelwise(y_true, y_pred):
 
 
 def count(y_true, y_pred):
-    return len(np.flatnonzero(y_pred))
+    return len(tf.count_nonzero(y_pred))
 
 dice_coef = dice_coefficient
 dice_coef_loss = dice_coefficient_loss
