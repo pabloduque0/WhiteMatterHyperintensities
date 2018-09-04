@@ -209,8 +209,8 @@ class TwoDUnet():
 
         for index, (pred, original, label) in enumerate(zip(predictions, data, labels)):
 
-            cv2.imwrite(output_path + 'original_' + str(index) + '.png', original)
-            cv2.imwrite(output_path + 'prediction_' + str(index) + '.png', pred)
-            cv2.imwrite(output_path + 'label_' + str(index) + '.png', label)
+            cv2.imwrite(output_path + 'original_' + str(index) + '.png', original * 255)
+            cv2.imwrite(output_path + 'prediction_' + str(index) + '.png', pred * 255)
+            cv2.imwrite(output_path + 'label_' + str(index) + '.png', label * 255)
 
 
