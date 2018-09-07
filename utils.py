@@ -2,38 +2,39 @@ import numpy as np
 import cv2
 import itk
 import matplotlib.pyplot as plt
+import constant
 
-class Utils():
+def leave_one_out(dataset, labels, dataset_name):
 
-    def calc_3d_hist(self, itk_image):
+    test_image_idx = np.random(0, 19)
+    test_indexes = None
 
-        slices_array = self.to_slices_array(itk_image)
-        hist = cv2.calcHist(slices_array[20], [0], None, [256], [0, 256])
-        plt.hist(slices_array[20].ravel(), 256, [0, 256])
-        plt.show()
+    if dataset_name == 'utrecht':
+        start = test_image_idx * constant.N_SLICE_UTRECHT
+        end = test_image_idx * constant.N_SLICE_UTRECHT + constant.N_SLICE_UTRECHT
+        test_image_idxes = np.arange(start, end)
+
+    elif dataset_name == 'singapore':
+        start = test_image_idx * constant.N_SLICE_SINGAPORE
+        end = test_image_idx * constant.N_SLICE_SINGAPORE + constant.N_SLICE_SINGAPORE
+        test_image_idxes = np.arange(start, end)
+
+    elif dataset_name == 'amsterdam':
+        start = test_image_idx * constant.N_SLICE_AMSTERDAM
+        end = test_image_idx * constant.N_SLICE_AMSTERDAM + constant.N_SLICE_AMSTERDAM
+        test_indexes = np.arange(start, end)
+    else:
+        print('Dataset name not found for LOO cross validation.')
+        return None
+
+    all_indexes = np.arange(0, len(dataset)-1)
+    train_indexes = np.array(set(all_indexes).difference(set(test_indexes)))
+
+    train_data, test_data = dataset[train_indexes], dataset[test_indexes]
+    train_labels, test_labels = labels[train_indexes], labels[test_indexes]
+
+    return train_data, test_data, train_labels, test_labels
 
 
-    def display_image(self, image):
 
-        np_image = self.to_numpy_corrected(image)
-        rows, columns, slices = np_image.shape
-        print(type(np_image))
-        for slice in range(slices):
-            slice_image = np_image[:, :, slice]
-            cv2.imshow('Image', slice_image)
-            cv2.waitKey(0)
 
-    def to_numpy_corrected(self, image):
-
-        np_image = itk.GetArrayFromImage(image)
-        np_image = np.swapaxes(np_image, 0, 2)
-        # = np_image.astype(np.uint8)
-
-        return np_image
-
-    def to_slices_array(self, image):
-
-        np_image = self.to_numpy_corrected(image)
-
-        slices_array = [np_image[:, :, _slice] for _slice in range(np_image.shape[2])]
-        return slices_array
