@@ -1,3 +1,10 @@
+#############################################################################
+#                                                                           #
+# BASED ON WMH CHALLENGE EVALUATION FILE:                                   #
+# https://github.com/hjkuijf/wmhchallenge/blob/master/evaluation.py         #
+#                                                                           #
+#############################################################################
+
 import numpy as np
 from twodunet import TwoDUnet
 from imageparser import ImageParser
@@ -8,30 +15,27 @@ import matplotlib.pyplot as plt
 from keras.models import load_model
 
 
-def getDSC(testImage, resultImage):
+def getDSC(labels, predictions):
     """Compute the Dice Similarity Coefficient."""
-    testArray = sitk.GetArrayFromImage(testImage).flatten()
-    resultArray = sitk.GetArrayFromImage(resultImage).flatten()
-
-    # similarity = 1.0 - dissimilarity
-    return 1.0 - scipy.spatial.distance.dice(testArray, resultArray)
+    return (1.0 - scipy.spatial.distance.dice(labels, predictions))
 
 
-def getHausdorff(testImage, resultImage):
+def getHausdorff(labels, predictions):
     """Compute the Hausdorff distance."""
+
 
     # Hausdorff distance is only defined when something is detected
     resultStatistics = sitk.StatisticsImageFilter()
-    resultStatistics.Execute(resultImage)
+    resultStatistics.Execute(predictions)
     if resultStatistics.GetSum() == 0:
         return float('nan')
 
     # Edge detection is done by ORIGINAL - ERODED, keeping the outer boundaries of lesions. Erosion is performed in 2D
-    eTestImage = sitk.BinaryErode(testImage, (1, 1, 0))
-    eResultImage = sitk.BinaryErode(resultImage, (1, 1, 0))
+    eTestImage = sitk.BinaryErode(labels, (1, 1, 0))
+    eResultImage = sitk.BinaryErode(predictions, (1, 1, 0))
 
-    hTestImage = sitk.Subtract(testImage, eTestImage)
-    hResultImage = sitk.Subtract(resultImage, eResultImage)
+    hTestImage = sitk.Subtract(labels, eTestImage)
+    hResultImage = sitk.Subtract(predictions, eResultImage)
 
     hTestArray = sitk.GetArrayFromImage(hTestImage)
     hResultArray = sitk.GetArrayFromImage(hResultImage)
@@ -40,16 +44,11 @@ def getHausdorff(testImage, resultImage):
     # np.nonzero   = elements of the boundary in numpy order (zyx)
     # np.flipud    = elements in xyz order
     # np.transpose = create tuples (x,y,z)
-    # testImage.TransformIndexToPhysicalPoint converts (xyz) to world coordinates (in mm)
-    testCoordinates = np.apply_along_axis(testImage.TransformIndexToPhysicalPoint, 1,
+    # labels.TransformIndexToPhysicalPoint converts (xyz) to world coordinates (in mm)
+    testCoordinates = np.apply_along_axis(labels.TransformIndexToPhysicalPoint, 1,
                                           np.transpose(np.flipud(np.nonzero(hTestArray))).astype(int))
-    resultCoordinates = np.apply_along_axis(testImage.TransformIndexToPhysicalPoint, 1,
+    resultCoordinates = np.apply_along_axis(labels.TransformIndexToPhysicalPoint, 1,
                                             np.transpose(np.flipud(np.nonzero(hResultArray))).astype(int))
-
-    # Use a kd-tree for fast spatial search
-    def getDistancesFromAtoB(a, b):
-        kdTree = scipy.spatial.KDTree(a, leafsize=100)
-        return kdTree.query(b, k=1, eps=0, p=2)[0]
 
     # Compute distances from test to result; and result to test
     dTestToResult = getDistancesFromAtoB(testCoordinates, resultCoordinates)
@@ -57,8 +56,12 @@ def getHausdorff(testImage, resultImage):
 
     return max(np.percentile(dTestToResult, 95), np.percentile(dResultToTest, 95))
 
+# Use a kd-tree for fast spatial search
+def getDistancesFromAtoB(a, b):
+    kdTree = scipy.spatial.KDTree(a, leafsize=100)
+    return kdTree.query(b, k=1, eps=0, p=2)[0]
 
-def getLesionDetection(testImage, resultImage):
+def getLesionDetection(labels, predictions):
     """Lesion detection metrics, both recall and F1."""
 
     # Connected components will give the background label 0, so subtract 1 from all results
@@ -67,8 +70,8 @@ def getLesionDetection(testImage, resultImage):
 
     # Connected components on the test image, to determine the number of true WMH.
     # And to get the overlap between detected voxels and true WMH
-    ccTest = ccFilter.Execute(testImage)
-    lResult = sitk.Multiply(ccTest, sitk.Cast(resultImage, sitk.sitkUInt32))
+    ccTest = ccFilter.Execute(labels)
+    lResult = sitk.Multiply(ccTest, sitk.Cast(predictions, sitk.sitkUInt32))
 
     ccTestArray = sitk.GetArrayFromImage(ccTest)
     lResultArray = sitk.GetArrayFromImage(lResult)
@@ -81,8 +84,8 @@ def getLesionDetection(testImage, resultImage):
         recall = float(len(np.unique(lResultArray)) - 1) / nWMH
 
     # Connected components of results, to determine number of detected lesions
-    ccResult = ccFilter.Execute(resultImage)
-    lTest = sitk.Multiply(ccResult, sitk.Cast(testImage, sitk.sitkUInt32))
+    ccResult = ccFilter.Execute(predictions)
+    lTest = sitk.Multiply(ccResult, sitk.Cast(labels, sitk.sitkUInt32))
 
     ccResultArray = sitk.GetArrayFromImage(ccResult)
     lTestArray = sitk.GetArrayFromImage(lTest)
@@ -102,13 +105,13 @@ def getLesionDetection(testImage, resultImage):
     return recall, f1
 
 
-def getAVD(testImage, resultImage):
+def getAVD(labels, predictions):
     """Volume statistics."""
     # Compute statistics of both images
     testStatistics = sitk.StatisticsImageFilter()
     resultStatistics = sitk.StatisticsImageFilter()
 
-    testStatistics.Execute(testImage)
-    resultStatistics.Execute(resultImage)
+    testStatistics.Execute(labels)
+    resultStatistics.Execute(predictions)
 
     return float(abs(testStatistics.GetSum() - resultStatistics.GetSum())) / float(testStatistics.GetSum()) * 100
