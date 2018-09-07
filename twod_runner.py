@@ -138,14 +138,14 @@ ANALYSIS
 TRAINING
 
 '''
-training_name = 'bigger_kernel'
-base_path = '/harddrive/home/pablo/Google Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities'
+training_name = 'longer_training'
+base_path = '/home/ubuntu/pablo/WhiteMatterHyperintensities'
 test_size = 0.3
 
 print(data_train.shape, labels_train.shape)
 
 unet = TwoDUnet(model_path=None, img_shape=data_train.shape[1:])
-unet.train(data_train, labels_train, test_size, training_name, base_path, epochs=10, batch_size=1)
+unet.train(data_train, labels_train, test_size, training_name, base_path, epochs=70, batch_size=30)
 
 '''
 

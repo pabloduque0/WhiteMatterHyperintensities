@@ -9,6 +9,8 @@ from keras.optimizers import Adam, SGD
 from metrics import dice_coef, dice_coef_loss, weighted_crossentropy, predicted_count, ground_truth_count, ground_truth_sum, predicted_sum
 from keras.losses import binary_crossentropy
 import cv2
+import numpy as np
+
 
 class TwoDUnet():
 
@@ -80,8 +82,8 @@ class TwoDUnet():
 
         model = models.Model(inputs=inputs, outputs=conv23)
 
-        #model.compile(optimizer=SGD(lr=0.01, momentum=0.99, nesterov=True), loss=dice_coef_loss, metrics=[dice_coef, binary_crossentropy])
-        model.compile(optimizer=Adam(lr=0.001), loss=binary_crossentropy, metrics=[dice_coef, binary_crossentropy, weighted_crossentropy,
+        #model.compile(optimizer=SGD(lr=0.01, momentum=0.99, nesterov=True), loss=dice_coef_loss, metrics=[dice_coef, binary_crossentropy, weighted_crossentropy, predicted_count, predicted_sum, ground_truth_count, ground_truth_sum])
+        model.compile(optimizer=Adam(lr=0.000001), loss=dice_coef_loss, metrics=[dice_coef, binary_crossentropy, weighted_crossentropy,
                                                                                    predicted_count, predicted_sum, ground_truth_count, ground_truth_sum])
 
         model.summary()
@@ -209,7 +211,7 @@ class TwoDUnet():
         predictions = self.model.predict(data, batch_size=batch_size, verbose=1)
 
         for index, (pred, original, label) in enumerate(zip(predictions, data, labels)):
-
+            print(len(np.flatnonzero(pred)))
             cv2.imwrite(output_path + 'original_' + str(index) + '.png', original * 255)
             cv2.imwrite(output_path + 'prediction_' + str(index) + '.png', pred * 255)
             cv2.imwrite(output_path + 'label_' + str(index) + '.png', label * 255)

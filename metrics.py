@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 
 
-def dice_coefficient(y_true, y_pred, smooth=1.):
+def dice_coefficient(y_true, y_pred, smooth=0.1):
     y_true_f = K.flatten(y_true)
     y_pred_f = K.flatten(y_pred)
 
