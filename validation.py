@@ -7,119 +7,108 @@ import cv2
 import matplotlib.pyplot as plt
 from keras.models import load_model
 
-parser = ImageParser()
-utrech_dataset, singapore_dataset, amsterdam_dataset = parser.get_all_images_and_labels()
 
-t1_utrecht = [row[1] for row in utrech_dataset]
-flair_utrecht = [row[2] for row in utrech_dataset]
-labels_utrecht = [row[0] for row in utrech_dataset]
+def getDSC(testImage, resultImage):
+    """Compute the Dice Similarity Coefficient."""
+    testArray = sitk.GetArrayFromImage(testImage).flatten()
+    resultArray = sitk.GetArrayFromImage(resultImage).flatten()
 
-t1_singapore = [row[1] for row in singapore_dataset]
-flair_singapore = [row[2] for row in singapore_dataset]
-labels_singapore = [row[0] for row in singapore_dataset]
-
-t1_amsterdam = [row[1] for row in amsterdam_dataset]
-flair_amsterdam = [row[2] for row in amsterdam_dataset]
-labels_amsterdam = [row[0] for row in amsterdam_dataset]
-
-slice_shape = (240, 240)
-
-print('Utrecht: ', len(t1_utrecht), len(flair_utrecht), len(labels_utrecht))
-print('Singapore: ', len(t1_singapore), len(flair_singapore), len(labels_singapore))
-print('Amsterdam: ', len(t1_amsterdam), len(flair_amsterdam), len(labels_amsterdam))
-
-'''
-
-T1 DATA
-
-'''
-utrecht_data_t1 = parser.get_all_images_np_twod(t1_utrecht)
-utrecht_resized_t1 = parser.resize_slices(utrecht_data_t1, slice_shape)
-utrecht_normalized_t1 = parser.normalize_images(utrecht_resized_t1)
-
-singapore_data_t1 = parser.get_all_images_np_twod(t1_singapore)
-singapore_resized_t1 = parser.resize_slices(singapore_data_t1, slice_shape)
-singapore_normalized_t1 = parser.normalize_images(singapore_resized_t1)
+    # similarity = 1.0 - dissimilarity
+    return 1.0 - scipy.spatial.distance.dice(testArray, resultArray)
 
 
-amsterdam_data_t1 = parser.get_all_images_np_twod(t1_amsterdam)
-amsterdam_resized_t1 = parser.resize_slices(amsterdam_data_t1, slice_shape)
-amsterdam_normalized_t1 = parser.normalize_images(amsterdam_resized_t1)
+def getHausdorff(testImage, resultImage):
+    """Compute the Hausdorff distance."""
 
-#print('T1: ', np.max(np.asanyarray(utrecht_data_t1).ravel()), np.max(np.asanyarray(singapore_resized_t1).ravel()), np.max(np.asanyarray(amsterdam_data_t1).ravel()))
+    # Hausdorff distance is only defined when something is detected
+    resultStatistics = sitk.StatisticsImageFilter()
+    resultStatistics.Execute(resultImage)
+    if resultStatistics.GetSum() == 0:
+        return float('nan')
 
-'''
+    # Edge detection is done by ORIGINAL - ERODED, keeping the outer boundaries of lesions. Erosion is performed in 2D
+    eTestImage = sitk.BinaryErode(testImage, (1, 1, 0))
+    eResultImage = sitk.BinaryErode(resultImage, (1, 1, 0))
 
-FLAIR DATA
+    hTestImage = sitk.Subtract(testImage, eTestImage)
+    hResultImage = sitk.Subtract(resultImage, eResultImage)
 
-'''
+    hTestArray = sitk.GetArrayFromImage(hTestImage)
+    hResultArray = sitk.GetArrayFromImage(hResultImage)
 
-utrecht_data_flair = parser.get_all_images_np_twod(flair_utrecht)
-utrecht_resized_flairs = parser.resize_slices(utrecht_data_flair, slice_shape)
-utrecht_normalized_flairs = parser.normalize_images(utrecht_resized_flairs)
+    # Convert voxel location to world coordinates. Use the coordinate system of the test image
+    # np.nonzero   = elements of the boundary in numpy order (zyx)
+    # np.flipud    = elements in xyz order
+    # np.transpose = create tuples (x,y,z)
+    # testImage.TransformIndexToPhysicalPoint converts (xyz) to world coordinates (in mm)
+    testCoordinates = np.apply_along_axis(testImage.TransformIndexToPhysicalPoint, 1,
+                                          np.transpose(np.flipud(np.nonzero(hTestArray))).astype(int))
+    resultCoordinates = np.apply_along_axis(testImage.TransformIndexToPhysicalPoint, 1,
+                                            np.transpose(np.flipud(np.nonzero(hResultArray))).astype(int))
 
-utrecht_data_tophat = parser.generate_tophat(utrecht_normalized_flairs)
+    # Use a kd-tree for fast spatial search
+    def getDistancesFromAtoB(a, b):
+        kdTree = scipy.spatial.KDTree(a, leafsize=100)
+        return kdTree.query(b, k=1, eps=0, p=2)[0]
 
-singapore_data_flair = parser.get_all_images_np_twod(flair_singapore)
-singapore_resized_flairs = parser.resize_slices(singapore_data_flair, slice_shape)
-singapore_normalized_flairs = parser.normalize_images(singapore_resized_flairs)
+    # Compute distances from test to result; and result to test
+    dTestToResult = getDistancesFromAtoB(testCoordinates, resultCoordinates)
+    dResultToTest = getDistancesFromAtoB(resultCoordinates, testCoordinates)
 
-singapore_data_tophat = parser.generate_tophat(singapore_normalized_flairs)
+    return max(np.percentile(dTestToResult, 95), np.percentile(dResultToTest, 95))
 
-amsterdam_data_flair = parser.get_all_images_np_twod(flair_amsterdam)
-amsterdam_resized_flairs = parser.resize_slices(amsterdam_data_flair, slice_shape)
-amsterdam_normalized_flairs = parser.normalize_images(amsterdam_resized_flairs)
 
-amsterdam_data_tophat = parser.generate_tophat(amsterdam_normalized_flairs)
+def getLesionDetection(testImage, resultImage):
+    """Lesion detection metrics, both recall and F1."""
 
-#print('Flairs: ', np.max(np.asanyarray(utrecht_data_flair)), np.max(np.asanyarray(singapore_resized_flairs)), np.max(np.asanyarray(amsterdam_data_flair)))
+    # Connected components will give the background label 0, so subtract 1 from all results
+    ccFilter = sitk.ConnectedComponentImageFilter()
+    ccFilter.SetFullyConnected(True)
 
-'''
+    # Connected components on the test image, to determine the number of true WMH.
+    # And to get the overlap between detected voxels and true WMH
+    ccTest = ccFilter.Execute(testImage)
+    lResult = sitk.Multiply(ccTest, sitk.Cast(resultImage, sitk.sitkUInt32))
 
-DATA CONCAT
+    ccTestArray = sitk.GetArrayFromImage(ccTest)
+    lResultArray = sitk.GetArrayFromImage(lResult)
 
-'''
+    # recall = (number of detected WMH) / (number of true WMH)
+    nWMH = len(np.unique(ccTestArray)) - 1
+    if nWMH == 0:
+        recall = 1.0
+    else:
+        recall = float(len(np.unique(lResultArray)) - 1) / nWMH
 
-normalized_t1 = utrecht_normalized_t1 + singapore_normalized_t1 + amsterdam_normalized_t1
-normalized_flairs = utrecht_normalized_flairs + singapore_normalized_flairs + amsterdam_normalized_flairs
-data_tophat = utrecht_data_tophat + singapore_data_tophat + amsterdam_data_tophat
+    # Connected components of results, to determine number of detected lesions
+    ccResult = ccFilter.Execute(resultImage)
+    lTest = sitk.Multiply(ccResult, sitk.Cast(testImage, sitk.sitkUInt32))
 
-data_t1 = np.expand_dims(np.asanyarray(normalized_t1), axis=3)
-data_flair = np.expand_dims(np.asanyarray(normalized_flairs), axis=3)
-data_tophat = np.asanyarray(data_tophat)
+    ccResultArray = sitk.GetArrayFromImage(ccResult)
+    lTestArray = sitk.GetArrayFromImage(lTest)
 
-all_data = np.concatenate([data_t1, data_flair, data_tophat], axis=3)
+    # precision = (number of detections that intersect with WMH) / (number of all detections)
+    nDetections = len(np.unique(ccResultArray)) - 1
+    if nDetections == 0:
+        precision = 1.0
+    else:
+        precision = float(len(np.unique(lTestArray)) - 1) / nDetections
 
-# All labels as np
-all_labels_paths = labels_utrecht + labels_singapore + labels_amsterdam
-all_labels_imgs = parser.get_all_images_np_twod(all_labels_paths)
+    if precision + recall == 0.0:
+        f1 = 0.0
+    else:
+        f1 = 2.0 * (precision * recall) / (precision + recall)
 
-# Extra gets for separated analysis
-labels_utrecht_imgs = parser.get_all_images_np_twod(labels_utrecht)
-labels_singapore_imgs = parser.get_all_images_np_twod(labels_singapore)
-labels_amsterdam_imgs = parser.get_all_images_np_twod(labels_amsterdam)
+    return recall, f1
 
-resized_labels = parser.resize_slices(all_labels_imgs, slice_shape)
-final_label_imgs = parser.remove_third_label(resized_labels)
 
-final_label_imgs = np.expand_dims(np.asanyarray(final_label_imgs), axis=3)
+def getAVD(testImage, resultImage):
+    """Volume statistics."""
+    # Compute statistics of both images
+    testStatistics = sitk.StatisticsImageFilter()
+    resultStatistics = sitk.StatisticsImageFilter()
 
-'''
+    testStatistics.Execute(testImage)
+    resultStatistics.Execute(resultImage)
 
-AUGMENTATION
-
-'''
-
-output_path = '/home/ubuntu/pablo/WhiteMatterHyperintensities/output/'
-
-data_train, validation_data, labels_train, validation_labels = train_test_split(all_data, final_label_imgs, test_size=0.05)
-
-model = load_model('/home/ubuntu/pablo/WhiteMatterHyperintensities/models/test_monday/')
-
-predictions = model.predict(validation_data, batch_size=1, verbose=1)
-
-for index, (pred, original, label) in enumerate(zip(predictions, validation_data, validation_labels)):
-
-    cv2.imwrite(output_path + 'original_' + str(index) + '.png', original * 255)
-    cv2.imwrite(output_path + 'prediction_' + str(index) + '.png', pred * 255)
-    cv2.imwrite(output_path + 'label_' + str(index) + '.png', label * 255)
+    return float(abs(testStatistics.GetSum() - resultStatistics.GetSum())) / float(testStatistics.GetSum()) * 100
