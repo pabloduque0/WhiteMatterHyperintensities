@@ -82,7 +82,6 @@ class TwoDUnet():
 
         model = models.Model(inputs=inputs, outputs=conv23)
 
-        #model.compile(optimizer=SGD(lr=0.01, momentum=0.99, nesterov=True), loss=dice_coef_loss, metrics=[dice_coef, binary_crossentropy, weighted_crossentropy, predicted_count, predicted_sum, ground_truth_count, ground_truth_sum])
         model.compile(optimizer=Adam(lr=0.000001), loss=dice_coef_loss, metrics=[dice_coef, binary_crossentropy, weighted_crossentropy,
                                                                                    predicted_count, predicted_sum, ground_truth_count, ground_truth_sum])
 
@@ -91,31 +90,7 @@ class TwoDUnet():
         return model
 
 
-    def copy_crop(self, layer_target, layer_refer):
-
-        # width, the 3rd dimension
-        cw = (layer_target.get_shape()[2] - layer_refer.get_shape()[2]).value
-        assert (cw >= 0)
-        if cw % 2 != 0:
-            cw1, cw2 =  cw // 2, (cw // 2) + 1
-        else:
-            cw1, cw2 = int(cw / 2), int(cw / 2)
-        # height, the 2nd dimension
-        ch = (layer_target.get_shape()[1] - layer_refer.get_shape()[1]).value
-        assert (ch >= 0)
-        if ch % 2 != 0:
-            ch1, ch2 = int(ch / 2), int(ch / 2) + 1
-        else:
-            ch1, ch2 = int(ch / 2), int(ch / 2)
-
-        return (ch1, ch2), (cw1, cw2)
-
-
     def save_specs(self, specs_path, fit_specs):
-        """Guardar todas las caracterIsticas del modelo y las opciones del
-        metodo fit() en un fichero txt y las caracterIsticas del modelo de
-        la librerIa keras en formato json en la carpeta de logs.
-        """
 
         with open(specs_path, 'w') as file:
             with redirect_stdout(file):
@@ -128,17 +103,6 @@ class TwoDUnet():
                 fit_file.write(key + ': ' + str(value) + '\n')
 
     def create_folders(self, training_name, base_path):
-        """
-        Metodo para crear las siguientes carpetas y directorios:
-                model_path: carpeta para guardar los pesos del modelo
-                weights_path: directorio de los pesos del modelo concreto con
-                              el formato de fichero model_x.hdf5, donde x es la
-                              version del modelo.
-                              Si una version concreta existe, se crea un
-                              fichero nuevo con el siguiente numero de version
-                log_path: carpeta donde guardar los logs de TensorBoard y las
-                          caracterIsticas del modelo
-        """
 
         model_path = base_path + "/models/" + training_name
         if not os.path.exists(model_path):
