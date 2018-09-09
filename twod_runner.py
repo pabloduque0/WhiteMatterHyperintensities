@@ -121,20 +121,6 @@ labels_train = np.asanyarray(labels_train)
 
 '''
 
-ANALYSIS
-
-'''
-
-#parser.analyze_hit_intensities(data_t1, data_flair, final_label_imgs)
-#parser.analyze_hits_locats(utrecht_data_t1, utrecht_data_flair, labels_utrecht_imgs)
-#parser.analyze_hits_locats(singapore_data_t1, singapore_data_flair, labels_singapore_imgs)
-#parser.analyze_hits_locats(amsterdam_data_t1, amsterdam_data_flair, labels_amsterdam_imgs)
-#parser.analyze_hits_locats(utrecht_normalized_t1, utrecht_normalized_flairs, labels_utrecht_imgs)
-#parser.analyze_hits_locats(singapore_normalized_t1, singapore_normalized_flairs, labels_singapore_imgs)
-#parser.analyze_hits_locats(amsterdam_normalized_t1, amsterdam_normalized_flairs, labels_amsterdam_imgs)
-
-'''
-
 TRAINING
 
 '''

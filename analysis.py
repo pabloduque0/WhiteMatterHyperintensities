@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def analyze_hit_intensities(self, t1s, flairs, labels):
+def analyze_hit_intensities(t1s, flairs, labels):
     fig1, ax1 = plt.subplots(2, 1)
     all_flair_values = None
     all_t1_values = None
@@ -34,7 +34,7 @@ def analyze_hit_intensities(self, t1s, flairs, labels):
     plt.show()
 
 
-def analyze_hits_locats(self, t1s, flairs, labels):
+def analyze_hits_locats(t1s, flairs, labels):
     all_indexes = None
 
     for index, (t1, flair, label) in enumerate(zip(t1s, flairs, labels)):
