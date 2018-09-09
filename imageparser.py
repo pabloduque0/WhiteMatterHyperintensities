@@ -10,10 +10,10 @@ from matplotlib import cm
 
 class ImageParser():
 
-    def __init__(self):
-        self.path_utrech = '../Utrecht'
-        self.path_singapore = '../Singapore'
-        self.path_amsterdam = '../GE3T'
+    def __init__(self, path_utrech='../Utrecht', path_singapore='../Singapore', path_amsterdam='../GE3T'):
+        self.path_utrech = path_utrech
+        self.path_singapore = path_singapore
+        self.path_amsterdam = path_amsterdam
 
 
     def get_all_image_paths(self):
@@ -229,54 +229,6 @@ class ImageParser():
         return new_labels_list
 
 
-    def analyze_hit_intensities(self, t1s, flairs, labels):
-
-        fig1, ax1 = plt.subplots(2, 1)
-        all_flair_values = None
-        all_t1_values = None
-        for index, (t1, flair, label) in enumerate(zip(t1s, flairs, labels)):
-
-            wmh_indexes = np.where(label == 1.0)
-            wmh_values_t1 = t1[wmh_indexes]
-            wmh_values_flair = flair[wmh_indexes]
-
-            if len(wmh_indexes) > 0 and len(wmh_values_t1) > 0 and len(wmh_values_flair) > 0:
-
-                if all_flair_values is None or all_t1_values is None:
-                    all_flair_values = wmh_values_flair
-                    all_t1_values = wmh_values_t1
-
-                all_flair_values = np.concatenate([all_flair_values, wmh_values_flair])
-                all_t1_values = np.concatenate([all_t1_values, wmh_values_t1])
-
-        ax1[0].hist(all_flair_values, bins=40, color='r')
-        ax1[0].set_title('Flair images')
-        ax1[1].hist(all_t1_values, bins=40, color='g')
-        ax1[1].set_title('T1 images')
-
-        ax1[0].set_ylabel('Appeareances')
-
-        ax1[1].set_xlabel('Pixel intensity')
-        ax1[1].set_ylabel('Appeareances')
-
-        plt.show()
-
-    def analyze_hits_locats(self, t1s, flairs, labels):
-
-        all_indexes = None
-
-        for index, (t1, flair, label) in enumerate(zip(t1s, flairs, labels)):
-            wmh_indexes = np.where(label == 1.0)
-            if len(wmh_indexes) > 0:
-                if all_indexes is not None:
-                    all_indexes[0] = np.concatenate([all_indexes[0], wmh_indexes[0]])
-                    all_indexes[1] = np.concatenate([all_indexes[1], wmh_indexes[1]])
-                else:
-                    all_indexes = list(wmh_indexes)
-
-        plt.hist2d(all_indexes[0], all_indexes[1], bins=100, range=[[0, t1s[0].shape[0]], [0, t1s[0].shape[1]]], cmin=1)#, cmap=cm.bugn)
-        plt.colorbar()
-        plt.show()
 
     def generate_tophat(self, dataset):
 
