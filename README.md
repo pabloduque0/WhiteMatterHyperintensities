@@ -77,17 +77,23 @@ $$ DSCLoss = - \frac{\sum_{n = 1}^{N} | g_{n} \circ \ p_{n} |}{\sum_{n = 1}^{N} 
 
 ## Results
 
-Solarized dark             |  Solarized Ocean          |  Solarized Ocean
+           Input image           |         Ground truth         |            Prediction             
 :-------------------------:|:-------------------------:|:-------------------------:
 ![](resources/original_250.png)  | ![](resources/label_250.png) | ![](resources/prediction_250.png) 
 
-Solarized dark             |  Solarized Ocean          |  Solarized Ocean
+           Input image           |         Ground truth         |            Prediction             
 :-------------------------:|:-------------------------:|:-------------------------:
 ![](resources/original_282.png)  | ![](resources/label_282.png) | ![](resources/prediction_282.png) 
 
 
 
-#### DSC = 0.6494
+#### Validation DSC = 0.6494
+
+
+
+![](resources/dice_train.png)
+
+![](resources/dice_validation.png)
 
 
 
