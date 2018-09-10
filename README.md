@@ -75,25 +75,23 @@ $$ DSCLoss = - \frac{\sum_{n = 1}^{N} | g_{n} \circ \ p_{n} |}{\sum_{n = 1}^{N} 
 - Learning rate: 0.000001
 
 
+
 ## Results
 
-           Input image           |         Ground truth         |            Prediction             
-:-------------------------:|:-------------------------:|:-------------------------:
-![](resources/original_250.png)  | ![](resources/label_250.png) | ![](resources/prediction_250.png) 
-
-           Input image           |         Ground truth         |            Prediction             
-:-------------------------:|:-------------------------:|:-------------------------:
-![](resources/original_282.png)  | ![](resources/label_282.png) | ![](resources/prediction_282.png) 
+| Input image                                                  | Ground truth                                                 | Prediction                                                   |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![img](file:///harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/original_250.png?lastModify=1536617100) | ![img](file:///harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/label_250.png?lastModify=1536617100) | ![img](file:///harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/prediction_250.png?lastModify=1536617100) |
+| ![img](file:///harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/original_282.png?lastModify=1536617100) | ![img](file:///harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/label_282.png?lastModify=1536617100) | ![img](file:///harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/prediction_282.png?lastModify=1536617100) |
 
 
 
 #### Validation DSC = 0.6494
 
+![](/harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/dice_train.png)
+
+![](/harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/dice_validation.png)
 
 
-![](resources/dice_train.png)
-
-![](resources/dice_validation.png)
 
 
 
