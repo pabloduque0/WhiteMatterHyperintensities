@@ -78,10 +78,10 @@ $$ DSCLoss = - \frac{\sum_{n = 1}^{N} | g_{n} \circ \ p_{n} |}{\sum_{n = 1}^{N} 
 
 ## Results
 
-| Input image                                                  | Ground truth                                                 | Prediction                                                   |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![img](file:///harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/original_250.png?lastModify=1536617100) | ![img](file:///harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/label_250.png?lastModify=1536617100) | ![img](file:///harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/prediction_250.png?lastModify=1536617100) |
-| ![img](file:///harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/original_282.png?lastModify=1536617100) | ![img](file:///harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/label_282.png?lastModify=1536617100) | ![img](file:///harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/prediction_282.png?lastModify=1536617100) |
+| Input image                        | Ground truth                    | Prediction                           |
+| ---------------------------------- | ------------------------------- | ------------------------------------ |
+| ![img](resources/original_250.png) | ![img](resources/label_250.png) | ![img](resources/prediction_250.png) |
+| ![img](resources/original_282.png) | ![img](resources/label_282.png) | ![img](resources/prediction_282.png) |
 
 
 
