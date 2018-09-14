@@ -36,8 +36,6 @@ $$
 
 
 
-
-
 ## Data augmentation:
 
 | Shifts                                       | Rotations   |
@@ -55,14 +53,16 @@ $$
 
 ### Weight initialization
 
-Based on a Gaussian kernel of $ stdv = \frac{2}{\sqrt{N}} $
+Based on a Gaussian kernel of  ![](resources/formula_init.gif)
 
 
 ### Loss function
 
 Dice Similarity Coefficient Loss over N slices where $ N = batch\_size  $
 
-$$ DSCLoss = - \frac{\sum_{n = 1}^{N} | g_{n} \circ \ p_{n} |}{\sum_{n = 1}^{N} |g_{n}| + |p_{n}|} $$
+
+
+![](resources/formula_dice_loss.gif)
 
 
 
@@ -87,9 +87,9 @@ $$ DSCLoss = - \frac{\sum_{n = 1}^{N} | g_{n} \circ \ p_{n} |}{\sum_{n = 1}^{N} 
 
 #### Validation DSC = 0.6494
 
-![](/harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/dice_train.png)
+![](resources/dice_train.png)
 
-![](/harddrive/home/pablo/Google%20Drive/UNED/Vision_Artificial/M2/WhiteMatterHyperintensities/resources/dice_validation.png)
+![](resources/dice_validation.png)
 
 
 
