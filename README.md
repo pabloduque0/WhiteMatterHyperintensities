@@ -53,7 +53,9 @@ $$
 
 ### Weight initialization
 
-Based on a Gaussian kernel of  ![](resources/formula_init.gif)
+Based on a Gaussian kernel of:
+
+  ![](resources/formula_init.gif)
 
 
 ### Loss function
