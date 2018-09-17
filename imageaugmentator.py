@@ -1,4 +1,10 @@
-import emoji
+#############################################################################
+#                                                                           #
+# BASED KERAS IMAGE AUGMENTATION:                                           #
+# https://keras.io/preprocessing/image/                                     #
+#                                                                           #
+#############################################################################
+
 import numpy as np
 import scipy.ndimage as ndi
 
@@ -11,7 +17,7 @@ class ImageAugmentator():
     def perform_all_augmentations(self, dataset_x, dataset_y):
 
         if len(dataset_x) != len(dataset_y):
-            print(emoji.emojize('Wrong input :thumbs_down: . Image lists must be have the same length.'))
+            print('Wrong input :thumbs_down: . Image lists must be have the same length.')
             return
 
         all_indexes = np.arange(0, len(dataset_x)-1)
@@ -42,7 +48,7 @@ class ImageAugmentator():
     def perform_flips(self, images_x, images_y):
 
         if len(images_x) != len(images_y):
-            print(emoji.emojize('Wrong input :thumbs_down: . Image lists must be have the same length.'))
+            print('Wrong input :thumbs_down: . Image lists must be have the same length.')
             return
 
         flipped_list_x = []
@@ -57,7 +63,7 @@ class ImageAugmentator():
     def perform_rotations(self, images_x, images_y, angle):
 
         if len(images_x) != len(images_y):
-            print(emoji.emojize('Wrong input :thumbs_down: . Image lists must be have the same length.'))
+            print('Wrong input :thumbs_down: . Image lists must be have the same length.')
             return
 
         rotated_list_x = []
@@ -73,7 +79,7 @@ class ImageAugmentator():
     def perform_shifts(self, images_x, images_y, width_shift, height_shift):
 
         if len(images_x) != len(images_y):
-            print(emoji.emojize('Wrong input :thumbs_down: . Image lists must be have the same length.'))
+            print('Wrong input :thumbs_down: . Image lists must be have the same length.')
             return
 
         shifted_list_x = []
