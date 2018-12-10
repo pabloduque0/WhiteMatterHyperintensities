@@ -95,6 +95,56 @@ Dice Similarity Coefficient Loss over N slices where $ N = batch\_size  $
 
 
 
+## Demo
+
+I cannot provide the data myself, so please request access to it in the WMH challenge website. Once you have access to such data please have in mind the structure of the directories to get this project working.
+
+```
+WhiteMatterHyperintensities #repo folder
+│   README.md
+│   metrics.py
+|   ...
+│
+GE3T
+└─── 100
+     └─── wmh.nii
+     └─── pre
+          └─── brain_FLAIR.nii
+          └─── brain_T1.nii
+└─── 101
+└─── 102
+└─── ...
+Singapore
+└─── 50
+└─── 51
+└─── 52
+└─── ...
+Utrecht
+└─── 0
+└─── 2
+└─── 4
+└─── ...
+```
+
+Where brain_T1.nii and brain_FLAIR.nii are the respective outputs of BET-FSL brain extraction for their respectives T1 and FLAIR images. So the parser obtains the images from "../GE3T", "../Singapore" and "../Utrecht".
+
+Then you would have to make a couple changes in the twod_runner.py file:
+
+```python
+training_name = 'NAME_OF_EACH_TRAINING'
+base_path = 'YOUR_PATH/WhiteMatterHyperintensities'
+```
+
+
+
+It will generate a set of folders with the logs and models for each training, assuming you change the name of the training before each training.
+
+Finally you can just execute the runner:
+
+```bash
+python3 twod_runner.py
+```
+
 
 
 ## References summary
