@@ -2,6 +2,8 @@
 
 # WhiteMatterHyperintensities
 
+** This repo is no longer mantained, may contain errors, work continuation will be uploaded in a different repo eventually. **
+
 White matter hyperintensity segmentation using a 2D U-Net. Keras with Tensorflow backend.
 
 Currently working on modifications and improvements
